@@ -12,6 +12,10 @@ OpenToDo — локальное веб-приложение для управл�
 
 ![Рабочий экран OpenToDo](docs/screenshots/dashboard.png)
 
+Форма задачи:
+
+![Рабочий экран OpenToDo](docs/screenshots/task.png)
+
 ## Возможности
 
 - регистрация, вход и выход пользователей;

@@ -237,7 +237,7 @@
 </div>
 
 <div id="task-edit-modal-overlay" class="modal-overlay hidden">
-    <section class="modal-panel">
+    <section class="modal-panel task-edit-modal-panel">
         <div class="modal-head">
             <h2>Изменить задачу</h2>
             <button id="close-task-edit-modal" class="icon-btn" type="button">✕</button>
@@ -248,100 +248,107 @@
             <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
             <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
             <input type="hidden" name="q" value="{{ search_query }}">
-            <label class="form-field" for="task-edit-title-input">
-                <span>Название</span>
-                <input id="task-edit-title-input" type="text" name="title" placeholder="Название задачи..." required>
-            </label>
-            <label class="form-field" for="task-edit-description-input">
-                <span>Описание</span>
-                <textarea id="task-edit-description-input" name="description" placeholder="Описание задачи (необязательно)"></textarea>
-            </label>
-            <label class="form-field" for="task-edit-due-date-input">
-                <span>Дата и время</span>
-                <input id="task-edit-due-date-input" type="datetime-local" name="due_at" aria-label="Дедлайн задачи">
-            </label>
-            <label class="form-field" for="task-edit-recurrence-input">
-                <span>Повторять</span>
-                <select id="task-edit-recurrence-input" name="recurrence">
-                    {% for recurrence_value, recurrence_label in task_recurrence_options %}
-                        <option value="{{ recurrence_value }}">{{ recurrence_label }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <div class="form-field priority-picker-field">
-                <span id="task-edit-priority-label">Приоритет</span>
-                <input id="task-edit-priority-input" type="hidden" name="priority" value="medium">
-                <details class="priority-dropdown" data-priority-dropdown="task-edit-priority-input">
-                    <summary class="priority-dropdown-trigger" aria-labelledby="task-edit-priority-label">
-                        <span class="priority-selected priority-option-medium" data-priority-selected-for="task-edit-priority-input">
-                            <span class="priority-option-icon" aria-hidden="true">!</span>
-                            <span>Средний приоритет</span>
-                        </span>
-                    </summary>
-                    <div class="priority-picker" role="radiogroup" aria-labelledby="task-edit-priority-label">
-                        {% for priority_value, priority_label in task_priority_options %}
-                            <button
-                                type="button"
-                                class="priority-option priority-option-{{ priority_value }} {% if priority_value == 'medium' %}active{% endif %}"
-                                data-priority-option="{{ priority_value }}"
-                                data-priority-target="task-edit-priority-input"
-                                aria-pressed="{{ 'true' if priority_value == 'medium' else 'false' }}"
-                            >
-                                <span class="priority-option-icon" aria-hidden="true">!</span>
-                                <span>{{ priority_label }} приоритет</span>
-                            </button>
-                        {% endfor %}
+            <div class="task-edit-layout">
+                <div class="task-edit-main">
+                    <label class="form-field" for="task-edit-title-input">
+                        <span>Название</span>
+                        <input id="task-edit-title-input" type="text" name="title" placeholder="Название задачи..." required>
+                    </label>
+                    <label class="form-field" for="task-edit-description-input">
+                        <span>Описание</span>
+                        <textarea id="task-edit-description-input" name="description" rows="1" placeholder="Описание задачи (необязательно)"></textarea>
+                    </label>
+                    <div class="checklist-builder-title">
+                        <span>Чек-лист <small id="task-edit-checklist-progress" class="checklist-progress"></small></span>
                     </div>
-                </details>
-            </div>
-            <div class="checklist-builder">
-                <div class="checklist-builder-head">
-                    <span>Чек-лист <small id="task-edit-checklist-progress" class="checklist-progress"></small></span>
-                    <button id="task-edit-add-checklist-item" class="checklist-add-btn" type="button">+ пункт</button>
+                    <div class="checklist-builder">
+                        <div id="task-edit-checklist-items" class="checklist-builder-items"></div>
+                    </div>
+                    <div class="attachments-builder">
+                        <div class="attachments-builder-head">
+                            <span>Вложения</span>
+                        </div>
+                        <div id="task-edit-attachments" class="attachment-list"></div>
+                        <label class="file-dropzone">
+                            <input id="task-edit-new-attachments-input" class="file-dropzone-input" type="file" name="attachments[]" multiple>
+                            <span class="file-dropzone-title">Прикрепить файлы</span>
+                            <span class="file-dropzone-note">или перетащите сюда, до 10 MB каждый</span>
+                        </label>
+                    </div>
                 </div>
-                <div id="task-edit-checklist-items" class="checklist-builder-items"></div>
+                <aside class="task-edit-sidebar" aria-label="Параметры задачи">
+                    <h3 class="task-edit-sidebar-title">Параметры</h3>
+                    <label class="form-field" for="task-edit-project-input">
+                        <span>Проект</span>
+                        <select id="task-edit-project-input" name="project_id">
+                            <option value="">Без проекта</option>
+                            {% for project in projects %}
+                                <option value="{{ project.id }}">{{ project_icon_map.get(project.icon, "📁") }} {{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="form-field" for="task-edit-due-date-input">
+                        <span>Дата</span>
+                        <input id="task-edit-due-date-input" type="datetime-local" name="due_at" aria-label="Дедлайн задачи">
+                    </label>
+                    <label class="form-field" for="task-edit-recurrence-input">
+                        <span>Повторять</span>
+                        <select id="task-edit-recurrence-input" name="recurrence">
+                            {% for recurrence_value, recurrence_label in task_recurrence_options %}
+                                <option value="{{ recurrence_value }}">{{ recurrence_label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <div class="form-field priority-picker-field">
+                        <span id="task-edit-priority-label">Приоритет</span>
+                        <input id="task-edit-priority-input" type="hidden" name="priority" value="medium">
+                        <details class="priority-dropdown" data-priority-dropdown="task-edit-priority-input">
+                            <summary class="priority-dropdown-trigger" aria-labelledby="task-edit-priority-label">
+                                <span class="priority-selected priority-option-medium" data-priority-selected-for="task-edit-priority-input">
+                                    <span class="priority-option-icon" aria-hidden="true">!</span>
+                                    <span>Средний приоритет</span>
+                                </span>
+                            </summary>
+                            <div class="priority-picker" role="radiogroup" aria-labelledby="task-edit-priority-label">
+                                {% for priority_value, priority_label in task_priority_options %}
+                                    <button
+                                        type="button"
+                                        class="priority-option priority-option-{{ priority_value }} {% if priority_value == 'medium' %}active{% endif %}"
+                                        data-priority-option="{{ priority_value }}"
+                                        data-priority-target="task-edit-priority-input"
+                                        aria-pressed="{{ 'true' if priority_value == 'medium' else 'false' }}"
+                                    >
+                                        <span class="priority-option-icon" aria-hidden="true">!</span>
+                                        <span>{{ priority_label }} приоритет</span>
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    </div>
+                    <div class="form-field task-tag-picker-field">
+                        <span id="task-edit-tags-label">Метки</span>
+                        <input id="task-edit-tags-input" type="hidden" name="tag_names">
+                        <div
+                            id="task-edit-tags-picker"
+                            class="tag-picker"
+                            role="combobox"
+                            aria-labelledby="task-edit-tags-label"
+                            aria-haspopup="listbox"
+                            aria-expanded="false"
+                        >
+                            <div id="task-edit-tags-selected" class="tag-picker-selected"></div>
+                            <input id="task-edit-tags-search" class="tag-picker-search" type="text" placeholder="Добавить метку" autocomplete="off">
+                        </div>
+                    </div>
+                    <div id="task-edit-tags-suggestions" class="tag-picker-menu hidden" role="listbox"></div>
+                </aside>
             </div>
-            <label class="form-field" for="task-edit-project-input">
-                <span>Проект</span>
-                <select id="task-edit-project-input" name="project_id">
-                    <option value="">Без проекта</option>
-                    {% for project in projects %}
-                        <option value="{{ project.id }}">{{ project_icon_map.get(project.icon, "📁") }} {{ project.name }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <div class="form-field task-tag-picker-field">
-                <span id="task-edit-tags-label">Метки</span>
-                <input id="task-edit-tags-input" type="hidden" name="tag_names">
-                <div
-                    id="task-edit-tags-picker"
-                    class="tag-picker"
-                    role="combobox"
-                    aria-labelledby="task-edit-tags-label"
-                    aria-haspopup="listbox"
-                    aria-expanded="false"
-                >
-                    <div id="task-edit-tags-selected" class="tag-picker-selected"></div>
-                    <input id="task-edit-tags-search" class="tag-picker-search" type="text" placeholder="Добавить метку" autocomplete="off">
+            <div class="modal-actions task-edit-actions">
+                <div class="task-edit-actions-primary">
+                    <button id="task-edit-save-btn" type="button">Сохранить</button>
+                    <button class="button-secondary" type="button" data-modal-cancel="task-edit">Отмена</button>
                 </div>
-            </div>
-            <div id="task-edit-tags-suggestions" class="tag-picker-menu hidden" role="listbox"></div>
-            <details class="attachments-builder" open>
-                <summary class="attachments-builder-head">
-                    <span>Вложения</span>
-                    <small>до 5 файлов, до 10 MB каждый</small>
-                </summary>
-                <div id="task-edit-attachments" class="attachment-list"></div>
-                <label class="file-dropzone">
-                    <input id="task-edit-new-attachments-input" class="file-dropzone-input" type="file" name="attachments[]" multiple>
-                    <span class="file-dropzone-title">Выберите файлы или перетащите сюда</span>
-                    <span class="file-dropzone-note">до 5 файлов, до 10 MB каждый</span>
-                </label>
-            </details>
-            <div class="modal-actions">
-                <button id="task-edit-delete-btn" type="submit" class="danger" form="task-edit-delete-form">Удалить заметку</button>
-                <button id="task-edit-save-btn" type="button">Сохранить</button>
-                <button class="button-secondary" type="button" data-modal-cancel="task-edit">Отмена</button>
+                <button id="task-edit-delete-btn" type="submit" class="danger task-edit-delete-action" form="task-edit-delete-form">Удалить</button>
             </div>
         </form>
         <form id="task-edit-delete-form" action="{{ url_for('tasks.delete_task', task_id=0, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}" method="post">
@@ -411,11 +418,10 @@
                     </div>
                 </details>
             </div>
+            <div class="checklist-builder-title">
+                <span>Чек-лист</span>
+            </div>
             <div id="task-checklist-builder" class="checklist-builder">
-                <div class="checklist-builder-head">
-                    <span>Чеклист</span>
-                    <button id="task-add-checklist-item" class="checklist-add-btn" type="button">+ пункт</button>
-                </div>
                 <div id="task-checklist-items" class="checklist-builder-items"></div>
             </div>
             <label class="form-field" for="task-project-input">
@@ -432,17 +438,16 @@
                 <input id="task-tags-input" type="text" name="tag_names" placeholder="Метки через запятую, например: работа, срочно">
             </label>
             <div id="task-tags-suggestions" class="tag-suggestions hidden"></div>
-            <details class="attachments-builder">
-                <summary class="attachments-builder-head">
+            <div class="attachments-builder">
+                <div class="attachments-builder-head">
                     <span>Вложения</span>
-                    <small>до 5 файлов, до 10 MB каждый</small>
-                </summary>
+                </div>
                 <label class="file-dropzone">
                     <input class="file-dropzone-input" type="file" name="attachments[]" multiple>
-                    <span class="file-dropzone-title">Выберите файлы или перетащите сюда</span>
-                    <span class="file-dropzone-note">до 5 файлов, до 10 MB каждый</span>
+                    <span class="file-dropzone-title">Прикрепить файлы</span>
+                    <span class="file-dropzone-note">или перетащите сюда, до 10 MB каждый</span>
                 </label>
-            </details>
+            </div>
             <div class="modal-actions">
                 <button type="submit">Создать</button>
                 <button class="button-secondary" type="button" data-modal-cancel="task">Отмена</button>
@@ -626,7 +631,7 @@
             </select>
             <div class="actions">
                 <button type="submit">Сохранить</button>
-                <button id="project-delete-btn" type="submit" class="danger" form="project-delete-form">Удалить проект</button>
+                <button id="project-delete-btn" type="submit" class="danger" form="project-delete-form">Удалить</button>
             </div>
         </form>
         <form id="project-delete-form" action="{{ url_for('projects.delete_project', project_id=0, view=current_view, selected_project_id=selected_project_id, q=search_arg) }}" method="post">
@@ -676,7 +681,7 @@
             <input id="tag-edit-color-input" type="color" name="color" value="#5b7cfa">
             <div class="actions">
                 <button type="submit">Сохранить</button>
-                <button id="tag-delete-btn" type="submit" class="danger" form="tag-delete-form">Удалить метку</button>
+                <button id="tag-delete-btn" type="submit" class="danger" form="tag-delete-form">Удалить</button>
             </div>
         </form>
         <form id="tag-delete-form" action="{{ url_for('tags.delete_tag', tag_id=0) }}" method="post" data-confirm="Удалить метку?">
@@ -1212,7 +1217,7 @@
                 const fileCount = input.files ? input.files.length : 0;
                 title.textContent = fileCount > 0
                     ? `Выбрано файлов: ${fileCount}`
-                    : "Выберите файлы или перетащите сюда";
+                    : "Прикрепить файлы";
             };
 
             input.addEventListener("change", updateTitle);
@@ -1236,6 +1241,22 @@
                 input.dispatchEvent(new Event("change", { bubbles: true }));
             });
         });
+    }
+
+    function resizeTaskEditDescriptionInput() {
+        if (!taskEditDescriptionInput) {
+            return;
+        }
+        if (!taskEditDescriptionInput.dataset.singleLineHeight) {
+            taskEditDescriptionInput.style.height = "";
+            taskEditDescriptionInput.dataset.singleLineHeight = String(taskEditDescriptionInput.offsetHeight || 36);
+        }
+
+        const singleLineHeight = Number(taskEditDescriptionInput.dataset.singleLineHeight);
+        taskEditDescriptionInput.style.height = `${singleLineHeight}px`;
+        if (taskEditDescriptionInput.scrollHeight > taskEditDescriptionInput.clientHeight) {
+            taskEditDescriptionInput.style.height = `${taskEditDescriptionInput.scrollHeight}px`;
+        }
     }
 
     function parseTagInputState(input) {
@@ -1637,6 +1658,7 @@
         taskEditNewAttachmentsInput.dispatchEvent(new Event("change", { bubbles: true }));
         taskEditModalOverlay.classList.remove("hidden");
         syncModalOpenState();
+        requestAnimationFrame(resizeTaskEditDescriptionInput);
         taskEditTitleInput.focus();
     }
 
@@ -1894,7 +1916,7 @@
     if (openTaskModalBtn) {
         openTaskModalBtn.addEventListener("click", openTaskModal);
     }
-    taskAddChecklistItemBtn.addEventListener("click", () => addChecklistInput().focus());
+    taskAddChecklistItemBtn?.addEventListener("click", () => addChecklistInput().focus());
     closeTaskModalBtn.addEventListener("click", closeTaskModal);
     modalOverlay.addEventListener("click", (event) => {
         if (event.target === modalOverlay && !isMobileViewport()) {
@@ -1980,7 +2002,8 @@
     taskEditForm.addEventListener("submit", (event) => {
         event.preventDefault();
     });
-    taskEditAddChecklistItemBtn.addEventListener("click", () => addEditChecklistInput("", "", false).focus());
+    taskEditDescriptionInput.addEventListener("input", resizeTaskEditDescriptionInput);
+    taskEditAddChecklistItemBtn?.addEventListener("click", () => addEditChecklistInput("", "", false).focus());
     taskEditSaveBtn.addEventListener("click", async () => {
         addTaskEditTagFromSearch();
         taskEditSaveBtn.disabled = true;

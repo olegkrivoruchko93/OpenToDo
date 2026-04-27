@@ -631,6 +631,44 @@ body {
     gap: 10px;
 }
 
+.task-edit-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 270px;
+    gap: 16px;
+    align-items: start;
+}
+
+.task-edit-main,
+.task-edit-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+.task-edit-sidebar {
+    position: sticky;
+    top: 0;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-muted);
+}
+
+.task-edit-sidebar-title {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.task-edit-sidebar .priority-dropdown,
+.task-edit-sidebar .priority-dropdown-trigger,
+.task-edit-sidebar .tag-picker-menu {
+    width: 100%;
+    min-width: 0;
+}
+
 .project-form {
     display: flex;
     flex-direction: column;
@@ -673,6 +711,16 @@ body {
 }
 
 .form-field > span {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.task-edit-main .form-field > span,
+.checklist-builder-title > span,
+.attachments-builder-head > span {
     color: var(--text-muted);
     font-size: 13px;
     font-weight: 600;
@@ -809,6 +857,13 @@ body {
     font-family: inherit;
 }
 
+#task-edit-description-input {
+    height: 36px;
+    min-height: 36px;
+    overflow-y: hidden;
+    resize: none;
+}
+
 .add-form button {
     align-self: flex-start;
 }
@@ -819,6 +874,25 @@ body {
     justify-content: flex-end;
     gap: 8px;
     margin-top: 4px;
+}
+
+.task-edit-actions {
+    justify-content: space-between;
+    width: 100%;
+}
+
+.task-edit-actions-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-form .task-edit-actions button {
+    align-self: center;
+}
+
+.task-edit-delete-action {
+    margin-left: auto;
 }
 
 button {
@@ -1050,6 +1124,10 @@ button.danger {
     padding: 14px 16px 16px;
     border: 1px solid var(--border);
     box-shadow: 0 14px 40px var(--shadow-modal);
+}
+
+.task-edit-modal-panel {
+    max-width: 860px;
 }
 
 .modal-panel-compact {
@@ -1824,27 +1902,25 @@ button.danger:hover {
 }
 
 .checklist-builder {
-    border: 1px solid color-mix(in srgb, var(--checklist-builder-border) 72%, transparent);
-    border-radius: 11px;
-    padding: 9px;
-    background: color-mix(in srgb, var(--checklist-builder-bg) 78%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-.checklist-builder-head {
+.checklist-builder-title {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 7px;
 }
 
-.checklist-builder-head span {
+.checklist-builder-title span {
     color: var(--text-muted);
     font-size: 13px;
     font-weight: 600;
 }
 
-.checklist-builder-head .checklist-progress {
+.checklist-builder-title .checklist-progress {
     color: var(--text-muted);
     font-size: 12px;
     font-weight: 500;
@@ -1880,12 +1956,18 @@ button.danger:hover {
 }
 
 .remove-checklist-item-btn {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     min-width: 28px;
     width: 28px;
     height: 28px;
+    padding: 0;
     border-radius: 8px;
     font-size: 12px;
+    line-height: 1;
 }
 
 .checklist-add-btn {
@@ -1906,37 +1988,19 @@ button.danger:hover {
 }
 
 .attachments-builder {
-    border: 1px solid color-mix(in srgb, var(--checklist-builder-border) 72%, transparent);
-    border-radius: 12px;
-    padding: 9px 11px;
-    background: color-mix(in srgb, var(--checklist-builder-bg) 78%, transparent);
+    padding: 0;
+    background: transparent;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 5px;
 }
 
 .attachments-builder-head {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
-    cursor: pointer;
-    list-style: none;
-}
-
-.attachments-builder-head::-webkit-details-marker {
-    display: none;
-}
-
-.attachments-builder-head::after {
-    content: "⌄";
-    color: var(--text-muted);
-    font-size: 13px;
-    transition: transform 0.15s ease;
-}
-
-.attachments-builder[open] .attachments-builder-head::after {
-    transform: rotate(180deg);
+    min-height: 28px;
 }
 
 .attachments-builder-head span {
@@ -1949,21 +2013,22 @@ button.danger:hover {
 
 .attachments-builder-head small {
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: 11px;
+    margin-left: auto;
 }
 
 .attachment-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
 }
 
 .attachment-row {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 10px;
-    padding: 8px 0;
+    gap: 7px;
+    padding: 5px 0;
     border: 0;
     border-top: 1px solid var(--border);
     background: transparent;
@@ -1974,15 +2039,15 @@ button.danger:hover {
 }
 
 .attachment-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 7px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     background: var(--accent-soft);
     color: var(--accent);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .attachment-meta {
@@ -1998,6 +2063,7 @@ button.danger:hover {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 13px;
 }
 
 .attachment-link:hover {
@@ -2016,12 +2082,14 @@ button.danger:hover {
 }
 
 .file-dropzone {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 10px 12px;
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 8px;
+    max-width: 100%;
+    padding: 6px 10px;
     border: 1px dashed var(--border-input);
-    border-radius: 10px;
+    border-radius: 999px;
     background: color-mix(in srgb, var(--bg-input) 72%, transparent);
     cursor: pointer;
 }
@@ -2043,13 +2111,17 @@ button.danger:hover {
 
 .file-dropzone-title {
     color: var(--text-main);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .file-dropzone-note {
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .attachment-delete-label {
@@ -2208,6 +2280,16 @@ button.danger:hover {
         gap: 8px;
     }
 
+    .task-edit-layout {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .task-edit-sidebar {
+        position: static;
+        padding: 10px;
+    }
+
     .add-form input,
     .add-form textarea,
     .add-form select {
@@ -2222,7 +2304,9 @@ button.danger:hover {
         gap: 4px;
     }
 
-    .form-field > span {
+    .form-field > span,
+    .checklist-builder-title > span,
+    .attachments-builder-head > span {
         font-size: 11px;
     }
 
@@ -2243,6 +2327,17 @@ button.danger:hover {
     .add-form .modal-actions button {
         width: 100%;
         align-self: stretch;
+    }
+
+    .task-edit-actions,
+    .task-edit-actions-primary {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .task-edit-delete-action {
+        margin-left: 0;
     }
 
     .backup-modal-body {
