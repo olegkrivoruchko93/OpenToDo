@@ -17,18 +17,19 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
 </head>
 <body class="app-page" data-current-view="{{ current_view }}">
+{% set search_arg = search_query if search_query else none %}
 <div class="layout">
     <aside class="sidebar">
         <div class="brand">OpenToDo</div>
 
         <nav class="menu">
-            <a class="menu-item {% if current_view == 'inbox' %}active{% endif %}" href="{{ url_for('main.index', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index') }}"><span>Входящие</span><small>{{ inbox_count }}</small></a>
-            <a class="menu-item {% if current_view == 'today' %}active{% endif %}" href="{{ url_for('main.index', view='today', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index', view='today') }}"><span>Сегодня</span><small>{{ today_count }}</small></a>
-            <a class="menu-item {% if current_view == 'plans' %}active{% endif %}" href="{{ url_for('main.index', view='plans', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index', view='plans') }}"><span>Планы</span><small>{{ plans_count }}</small></a>
+            <a class="menu-item {% if current_view == 'inbox' %}active{% endif %}" href="{{ url_for('main.index', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}"><span>Входящие</span><small>{{ inbox_count }}</small></a>
+            <a class="menu-item {% if current_view == 'today' %}active{% endif %}" href="{{ url_for('main.index', view='today', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}"><span>Сегодня</span><small>{{ today_count }}</small></a>
+            <a class="menu-item {% if current_view == 'plans' %}active{% endif %}" href="{{ url_for('main.index', view='plans', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}"><span>Планы</span><small>{{ plans_count }}</small></a>
         </nav>
 
         <section class="projects">
-            <details class="sidebar-projects-collapsible" {% if selected_project_id %}open{% endif %}>
+            <details class="sidebar-projects-collapsible" open>
                 <summary class="sidebar-projects-summary">
                     <span class="sidebar-projects-heading">Мои проекты</span>
                     <span class="sidebar-projects-summary-actions">
@@ -44,12 +45,18 @@
                 </summary>
                 <ul class="sidebar-projects-list">
                     <li>
-                        <a class="project-link {% if not selected_project_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, tag_id=selected_tag_id) if selected_tag_id else url_for('main.index', view=current_view) }}">Все проекты</a>
+                        <a class="project-link sidebar-project-link {% if not selected_project_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, tag_id=selected_tag_id, q=search_arg) }}">
+                            <span class="sidebar-project-icon" aria-hidden="true">📁</span>
+                            <span class="sidebar-project-name">Все проекты</span>
+                        </a>
                     </li>
                     {% for project in projects %}
                         <li>
-                            <div class="project-row {% if selected_project_id == project.id %}active{% endif %}">
-                                <a class="project-link" href="{{ url_for('main.index', view=current_view, project_id=project.id, tag_id=selected_tag_id) if selected_tag_id else url_for('main.index', view=current_view, project_id=project.id) }}">{{ project_icon_map.get(project.icon, "📁") }} {{ project.name }}</a>
+                            <div class="project-row sidebar-project-row {% if selected_project_id == project.id %}active{% endif %}">
+                                <a class="project-link sidebar-project-link" href="{{ url_for('main.index', view=current_view, project_id=project.id, tag_id=selected_tag_id, q=search_arg) }}" title="{{ project.name }}">
+                                    <span class="sidebar-project-icon" aria-hidden="true">{{ project_icon_map.get(project.icon, "📁") }}</span>
+                                    <span class="sidebar-project-name">{{ project.name }}</span>
+                                </a>
                                 <div class="project-actions">
                                     <button
                                         type="button"
@@ -82,12 +89,12 @@
             </summary>
             <ul class="sidebar-tags-list">
                 <li>
-                    <a class="project-link sidebar-tag-link {% if not selected_tag_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id) if selected_project_id else url_for('main.index', view=current_view) }}">Все метки</a>
+                    <a class="project-link sidebar-tag-link {% if not selected_tag_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, q=search_arg) }}">Все метки</a>
                 </li>
                 {% for tag in tags %}
                     <li>
                         <div class="project-row sidebar-tag-row {% if selected_tag_id == tag.id %}active{% endif %}">
-                            <a class="project-link sidebar-tag-link" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=tag.id) if selected_project_id else url_for('main.index', view=current_view, tag_id=tag.id) }}">
+                            <a class="project-link sidebar-tag-link" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=tag.id, q=search_arg) }}">
                                 <span class="tag-dot" style="background: {{ tag_color(tag.color) }}"></span>{{ tag.name }}
                             </a>
                             <div class="project-actions">
@@ -109,10 +116,20 @@
 
         <div class="sidebar-tools" role="toolbar" aria-label="Дополнительно">
             <a
-                class="sidebar-tool-icon-btn"
-                href="{{ url_for('main.index', view='trash', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index', view='trash') }}"
+                class="sidebar-tool-icon-btn {% if current_view == 'archive' %}active{% endif %}"
+                href="{{ url_for('main.index', view='archive', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}"
+                title="Архив"
+                aria-label="Архив, выполненные задачи"
+            ><svg class="sidebar-tool-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M3.5 8.5h4v4"></path>
+                <path d="M7.15 8.9A7 7 0 1 1 5 14"></path>
+                <path d="M12 7.5v5l3.25 2"></path>
+            </svg></a>
+            <a
+                class="sidebar-tool-icon-btn {% if current_view == 'trash' %}active{% endif %}"
+                href="{{ url_for('main.index', view='trash', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}"
                 title="Корзина"
-                aria-label="Корзина, выполненные задачи"
+                aria-label="Корзина, удаленные задачи"
             ><span aria-hidden="true">🗑</span></a>
             <button type="button" class="sidebar-tool-icon-btn" id="open-settings-modal" title="Настройки" aria-label="Настройки">
                 <span aria-hidden="true">⚙</span>
@@ -133,6 +150,16 @@
         <header class="workspace-head">
             <h1>{{ page_title }}</h1>
             <div class="workspace-head-actions">
+                <form class="task-search-form" action="{{ url_for('main.index') }}" method="get" role="search">
+                    <input type="hidden" name="view" value="{{ current_view }}">
+                    <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                    <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input class="task-search-input" type="search" name="q" value="{{ search_query }}" placeholder="Поиск задач..." aria-label="Поиск задач">
+                    <button type="submit">Найти</button>
+                    {% if search_query %}
+                        <a class="button-link button-secondary task-search-reset" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}">Сбросить</a>
+                    {% endif %}
+                </form>
                 <form action="{{ url_for('auth.logout') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="button-secondary" type="submit">Выйти ({{ current_user.username }})</button>
@@ -140,24 +167,15 @@
             </div>
         </header>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flash-list">
-                    {% for message in messages %}
-                        <li class="flash-message">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-
         <ul class="task-list">
             {% for task in tasks %}
-                <li class="task-item {% if task.is_done %}done{% endif %}" data-task-id="{{ task.id }}">
-                    <form data-task-toggle-form action="{{ url_for('tasks.toggle_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post">
+                <li class="task-item task-priority-{{ task.priority or 'medium' }} {% if task.is_done %}done{% endif %}" data-task-id="{{ task.id }}">
+                    <form data-task-toggle-form action="{{ url_for('tasks.toggle_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}" method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="view" value="{{ current_view }}">
                         <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
                         <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                        <input type="hidden" name="q" value="{{ search_query }}">
                         <button class="icon-btn" type="submit">{% if task.is_done %}✓{% endif %}</button>
                     </form>
                     <div class="task-content">
@@ -167,13 +185,16 @@
                         {% elif task.due_date %}
                             <span class="date-badge">📅 {{ task.due_date.strftime("%d.%m.%Y") }}</span>
                         {% endif %}
+                        {% if task_payloads[task.id].recurrence %}
+                            <span class="recurrence-badge">↻ {{ task_payloads[task.id].recurrence_label }}</span>
+                        {% endif %}
                         {% if task.project %}
-                            <span class="project-badge">{{ project_icon_map.get(task.project.icon, "📁") }} {{ task.project.name }}</span>
+                            <a class="project-badge" href="{{ url_for('main.index', view=current_view, project_id=task.project.id, tag_id=selected_tag_id, q=search_arg) }}">{{ project_icon_map.get(task.project.icon, "📁") }} {{ task.project.name }}</a>
                         {% endif %}
                         {% if task.tags %}
                             <div class="task-tags">
                                 {% for tag in task.tags %}
-                                    <span class="task-tag" style="background: {{ tag_color(tag.color) }}">{{ tag.name }}</span>
+                                    <a class="task-tag" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=tag.id, q=search_arg) }}" style="background: {{ tag_color(tag.color) }}">{{ tag.name }}</a>
                                 {% endfor %}
                             </div>
                         {% endif %}
@@ -181,33 +202,35 @@
                     {% if task.description and task.description.strip() %}
                         <span class="task-description-indicator" title="Есть описание" aria-hidden="true">📄</span>
                     {% endif %}
+                    {% if task.checklist_items %}
+                        <span class="task-checklist-indicator" title="Чек-лист: {{ task.checklist_items|length }}" aria-hidden="true">☑ {{ task.checklist_items|length }}</span>
+                    {% endif %}
                     {% if task.attachments %}
                         <span class="task-attachment-indicator" title="Вложения: {{ task.attachments|length }}" aria-hidden="true">📎 {{ task.attachments|length }}</span>
-                    {% endif %}
-                    {% if current_view == 'trash' %}
-                        <form action="{{ url_for('tasks.delete_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" data-confirm="Удалить задачу безвозвратно?">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <input type="hidden" name="view" value="{{ current_view }}">
-                            <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
-                            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
-                            <button class="icon-btn task-delete-btn" type="submit" aria-label="Удалить задачу">✕</button>
-                        </form>
                     {% endif %}
                 </li>
             {% else %}
                 <li class="empty-state">
                     {% if current_view == 'trash' %}
                         <h3>В корзине пусто</h3>
+                        <p>Удаленные задачи появляются здесь перед окончательным удалением.</p>
+                    {% elif current_view == 'archive' %}
+                        <h3>В архиве пусто</h3>
                         <p>Выполненные задачи появляются здесь после отметки «готово».</p>
                     {% else %}
-                        <h3>Тут пока ничего нет</h3>
-                        <p>Нажмите на кнопку "Новая задача" и начните планирование.</p>
+                        {% if search_query %}
+                            <h3>Ничего не найдено</h3>
+                            <p>Попробуйте изменить запрос или сбросить поиск.</p>
+                        {% else %}
+                            <h3>Тут пока ничего нет</h3>
+                            <p>Нажмите на кнопку "Новая задача" и начните планирование.</p>
+                        {% endif %}
                     {% endif %}
                 </li>
             {% endfor %}
         </ul>
 
-        {% if current_view != 'trash' %}
+        {% if current_view not in ['archive', 'trash'] %}
         <button id="open-task-modal" class="create-task-btn" type="button">+ Новая задача</button>
         {% endif %}
     </main>
@@ -219,11 +242,12 @@
             <h2>Изменить задачу</h2>
             <button id="close-task-edit-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form id="task-edit-form" class="add-form" action="{{ url_for('tasks.edit_task', task_id=0, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" enctype="multipart/form-data">
+        <form id="task-edit-form" class="add-form" action="{{ url_for('tasks.edit_task', task_id=0, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="view" value="{{ current_view }}">
             <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
             <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
             <label class="form-field" for="task-edit-title-input">
                 <span>Название</span>
                 <input id="task-edit-title-input" type="text" name="title" placeholder="Название задачи..." required>
@@ -236,9 +260,43 @@
                 <span>Дата и время</span>
                 <input id="task-edit-due-date-input" type="datetime-local" name="due_at" aria-label="Дедлайн задачи">
             </label>
+            <label class="form-field" for="task-edit-recurrence-input">
+                <span>Повторять</span>
+                <select id="task-edit-recurrence-input" name="recurrence">
+                    {% for recurrence_value, recurrence_label in task_recurrence_options %}
+                        <option value="{{ recurrence_value }}">{{ recurrence_label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="form-field priority-picker-field">
+                <span id="task-edit-priority-label">Приоритет</span>
+                <input id="task-edit-priority-input" type="hidden" name="priority" value="medium">
+                <details class="priority-dropdown" data-priority-dropdown="task-edit-priority-input">
+                    <summary class="priority-dropdown-trigger" aria-labelledby="task-edit-priority-label">
+                        <span class="priority-selected priority-option-medium" data-priority-selected-for="task-edit-priority-input">
+                            <span class="priority-option-icon" aria-hidden="true">!</span>
+                            <span>Средний приоритет</span>
+                        </span>
+                    </summary>
+                    <div class="priority-picker" role="radiogroup" aria-labelledby="task-edit-priority-label">
+                        {% for priority_value, priority_label in task_priority_options %}
+                            <button
+                                type="button"
+                                class="priority-option priority-option-{{ priority_value }} {% if priority_value == 'medium' %}active{% endif %}"
+                                data-priority-option="{{ priority_value }}"
+                                data-priority-target="task-edit-priority-input"
+                                aria-pressed="{{ 'true' if priority_value == 'medium' else 'false' }}"
+                            >
+                                <span class="priority-option-icon" aria-hidden="true">!</span>
+                                <span>{{ priority_label }} приоритет</span>
+                            </button>
+                        {% endfor %}
+                    </div>
+                </details>
+            </div>
             <div class="checklist-builder">
                 <div class="checklist-builder-head">
-                    <span>Чеклист</span>
+                    <span>Чек-лист <small id="task-edit-checklist-progress" class="checklist-progress"></small></span>
                     <button id="task-edit-add-checklist-item" class="checklist-add-btn" type="button">+ пункт</button>
                 </div>
                 <div id="task-edit-checklist-items" class="checklist-builder-items"></div>
@@ -252,11 +310,22 @@
                     {% endfor %}
                 </select>
             </label>
-            <label class="form-field" for="task-edit-tags-input">
-                <span>Метки</span>
-                <input id="task-edit-tags-input" type="text" name="tag_names" placeholder="Метки через запятую, например: работа, срочно">
-            </label>
-            <div id="task-edit-tags-suggestions" class="tag-suggestions hidden"></div>
+            <div class="form-field task-tag-picker-field">
+                <span id="task-edit-tags-label">Метки</span>
+                <input id="task-edit-tags-input" type="hidden" name="tag_names">
+                <div
+                    id="task-edit-tags-picker"
+                    class="tag-picker"
+                    role="combobox"
+                    aria-labelledby="task-edit-tags-label"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                >
+                    <div id="task-edit-tags-selected" class="tag-picker-selected"></div>
+                    <input id="task-edit-tags-search" class="tag-picker-search" type="text" placeholder="Добавить метку" autocomplete="off">
+                </div>
+            </div>
+            <div id="task-edit-tags-suggestions" class="tag-picker-menu hidden" role="listbox"></div>
             <details class="attachments-builder" open>
                 <summary class="attachments-builder-head">
                     <span>Вложения</span>
@@ -270,9 +339,17 @@
                 </label>
             </details>
             <div class="modal-actions">
+                <button id="task-edit-delete-btn" type="submit" class="danger" form="task-edit-delete-form">Удалить заметку</button>
                 <button id="task-edit-save-btn" type="button">Сохранить</button>
                 <button class="button-secondary" type="button" data-modal-cancel="task-edit">Отмена</button>
             </div>
+        </form>
+        <form id="task-edit-delete-form" action="{{ url_for('tasks.delete_task', task_id=0, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
         </form>
     </section>
 </div>
@@ -283,10 +360,11 @@
             <h2>Новая задача</h2>
             <button id="close-task-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form class="add-form" action="{{ url_for('tasks.add_task', view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" enctype="multipart/form-data">
+        <form class="add-form" action="{{ url_for('tasks.add_task', view=current_view, project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="view" value="{{ current_view }}">
             <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
             <label class="form-field" for="task-title-input">
                 <span>Название</span>
                 <input id="task-title-input" type="text" name="title" placeholder="Новая задача..." required>
@@ -299,6 +377,40 @@
                 <span>Дата и время</span>
                 <input id="task-due-date-input" type="datetime-local" name="due_at" aria-label="Дедлайн задачи">
             </label>
+            <label class="form-field" for="task-recurrence-input">
+                <span>Повторять</span>
+                <select id="task-recurrence-input" name="recurrence">
+                    {% for recurrence_value, recurrence_label in task_recurrence_options %}
+                        <option value="{{ recurrence_value }}">{{ recurrence_label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="form-field priority-picker-field">
+                <span id="task-priority-label">Приоритет</span>
+                <input id="task-priority-input" type="hidden" name="priority" value="medium">
+                <details class="priority-dropdown" data-priority-dropdown="task-priority-input">
+                    <summary class="priority-dropdown-trigger" aria-labelledby="task-priority-label">
+                        <span class="priority-selected priority-option-medium" data-priority-selected-for="task-priority-input">
+                            <span class="priority-option-icon" aria-hidden="true">!</span>
+                            <span>Средний приоритет</span>
+                        </span>
+                    </summary>
+                    <div class="priority-picker" role="radiogroup" aria-labelledby="task-priority-label">
+                        {% for priority_value, priority_label in task_priority_options %}
+                            <button
+                                type="button"
+                                class="priority-option priority-option-{{ priority_value }} {% if priority_value == 'medium' %}active{% endif %}"
+                                data-priority-option="{{ priority_value }}"
+                                data-priority-target="task-priority-input"
+                                aria-pressed="{{ 'true' if priority_value == 'medium' else 'false' }}"
+                            >
+                                <span class="priority-option-icon" aria-hidden="true">!</span>
+                                <span>{{ priority_label }} приоритет</span>
+                            </button>
+                        {% endfor %}
+                    </div>
+                </details>
+            </div>
             <div id="task-checklist-builder" class="checklist-builder">
                 <div class="checklist-builder-head">
                     <span>Чеклист</span>
@@ -363,6 +475,7 @@
                 <input type="hidden" name="view" value="{{ current_view }}">
                 <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
                 <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                <input type="hidden" name="q" value="{{ search_query }}">
                 <label class="backup-form-title" for="telegram-bot-token-input">Telegram bot token</label>
                 <input
                     id="telegram-bot-token-input"
@@ -420,6 +533,7 @@
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
                     <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
                     <label class="backup-form-title">Экспорт JSON</label>
                     <button type="submit">Скачать JSON</button>
                 </form>
@@ -428,6 +542,7 @@
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
                     <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
                     <label class="backup-form-title">Экспорт CSV (ZIP)</label>
                     <button type="submit">Скачать ZIP</button>
                 </form>
@@ -440,6 +555,7 @@
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
                     <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
                     <label class="backup-form-title">Импорт JSON</label>
                     <input type="file" name="backup_file" accept=".json,application/json" required>
                     <select name="mode">
@@ -453,6 +569,7 @@
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
                     <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
                     <label class="backup-form-title">Импорт CSV (ZIP)</label>
                     <input type="file" name="backup_file" accept=".zip,application/zip" required>
                     <select name="mode">
@@ -474,6 +591,10 @@
         </div>
         <form class="project-form" action="{{ url_for('projects.add_project') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
             <input id="project-name-input" type="text" name="name" placeholder="Название проекта..." required>
             <select name="icon">
                 {% for icon_key, icon_label in project_icon_options %}
@@ -491,8 +612,12 @@
             <h2>Изменить проект</h2>
             <button id="close-project-edit-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form id="project-edit-form" class="project-form" action="{{ url_for('projects.edit_project', project_id=0, view=current_view) }}" method="post">
+        <form id="project-edit-form" class="project-form" action="{{ url_for('projects.edit_project', project_id=0, view=current_view, q=search_arg) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
             <input id="project-edit-name-input" type="text" name="name" placeholder="Название проекта..." required>
             <select id="project-edit-icon-input" name="icon">
                 {% for icon_key, icon_label in project_icon_options %}
@@ -504,8 +629,12 @@
                 <button id="project-delete-btn" type="submit" class="danger" form="project-delete-form">Удалить проект</button>
             </div>
         </form>
-        <form id="project-delete-form" action="{{ url_for('projects.delete_project', project_id=0, view=current_view, selected_project_id=selected_project_id) }}" method="post">
+        <form id="project-delete-form" action="{{ url_for('projects.delete_project', project_id=0, view=current_view, selected_project_id=selected_project_id, q=search_arg) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
         </form>
     </section>
 </div>
@@ -521,6 +650,7 @@
             <input type="hidden" name="view" value="{{ current_view }}">
             <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
             <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
             <input id="tag-name-input" type="text" name="name" placeholder="Название метки..." required maxlength="64">
             <label for="tag-color-input" class="theme-picker-label">Цвет метки</label>
             <input id="tag-color-input" type="color" name="color" value="#5b7cfa">
@@ -537,10 +667,24 @@
         </div>
         <form id="tag-edit-form" class="project-form" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
             <input id="tag-edit-name-input" type="text" name="name" placeholder="Название метки..." required maxlength="64">
             <label for="tag-edit-color-input" class="theme-picker-label">Цвет метки</label>
             <input id="tag-edit-color-input" type="color" name="color" value="#5b7cfa">
-            <button type="submit">Сохранить</button>
+            <div class="actions">
+                <button type="submit">Сохранить</button>
+                <button id="tag-delete-btn" type="submit" class="danger" form="tag-delete-form">Удалить метку</button>
+            </div>
+        </form>
+        <form id="tag-delete-form" action="{{ url_for('tags.delete_tag', tag_id=0) }}" method="post" data-confirm="Удалить метку?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
         </form>
     </section>
 </div>
@@ -550,6 +694,12 @@
 <script>
     const SIDEBAR_WIDTH_STORAGE_KEY = "openTodoSidebarWidthPx";
     const CSRF_TOKEN = "{{ csrf_token() }}";
+    const FLASH_MESSAGES = {{ get_flashed_messages()|tojson }};
+    const CURRENT_SEARCH_QUERY = {{ search_query|tojson }};
+    const INDEX_URL = "{{ url_for('main.index') }}";
+    const CURRENT_VIEW = "{{ current_view }}";
+    const CURRENT_PROJECT_ID = "{{ selected_project_id if selected_project_id else '' }}";
+    const CURRENT_TAG_ID = "{{ selected_tag_id if selected_tag_id else '' }}";
     const SIDEBAR_WIDTH_MIN = 200;
     const SIDEBAR_WIDTH_MAX = 520;
     const SIDEBAR_WIDTH_DEFAULT = 290;
@@ -623,22 +773,32 @@
     const tagEditModalOverlay = document.getElementById("tag-edit-modal-overlay");
     const closeTagEditModalBtn = document.getElementById("close-tag-edit-modal");
     const tagEditForm = document.getElementById("tag-edit-form");
+    const tagDeleteForm = document.getElementById("tag-delete-form");
     const tagEditNameInput = document.getElementById("tag-edit-name-input");
     const tagEditColorInput = document.getElementById("tag-edit-color-input");
     const taskChecklistItems = document.getElementById("task-checklist-items");
     const taskAddChecklistItemBtn = document.getElementById("task-add-checklist-item");
     const taskDueDateInput = document.getElementById("task-due-date-input");
+    const taskRecurrenceInput = document.getElementById("task-recurrence-input");
+    const taskPriorityInput = document.getElementById("task-priority-input");
     const taskTagsInput = document.getElementById("task-tags-input");
     const taskTagsSuggestions = document.getElementById("task-tags-suggestions");
     const taskEditModalOverlay = document.getElementById("task-edit-modal-overlay");
     const closeTaskEditModalBtn = document.getElementById("close-task-edit-modal");
     const taskEditForm = document.getElementById("task-edit-form");
+    const taskEditDeleteForm = document.getElementById("task-edit-delete-form");
     const taskEditTitleInput = document.getElementById("task-edit-title-input");
     const taskEditDescriptionInput = document.getElementById("task-edit-description-input");
     const taskEditDueDateInput = document.getElementById("task-edit-due-date-input");
+    const taskEditRecurrenceInput = document.getElementById("task-edit-recurrence-input");
+    const taskEditPriorityInput = document.getElementById("task-edit-priority-input");
     const taskEditProjectInput = document.getElementById("task-edit-project-input");
     const taskEditTagsInput = document.getElementById("task-edit-tags-input");
     const taskEditTagsSuggestions = document.getElementById("task-edit-tags-suggestions");
+    const taskEditTagsPicker = document.getElementById("task-edit-tags-picker");
+    const taskEditTagsSelected = document.getElementById("task-edit-tags-selected");
+    const taskEditTagsSearch = document.getElementById("task-edit-tags-search");
+    const taskEditChecklistProgress = document.getElementById("task-edit-checklist-progress");
     const taskEditChecklistItems = document.getElementById("task-edit-checklist-items");
     const taskEditAddChecklistItemBtn = document.getElementById("task-edit-add-checklist-item");
     const taskEditAttachments = document.getElementById("task-edit-attachments");
@@ -648,12 +808,14 @@
     const taskEditSaveBtn = document.getElementById("task-edit-save-btn");
     const toastEl = document.getElementById("toast");
     const availableTagNames = {{ tag_suggestion_names|tojson }};
+    const availableTagItems = {{ tag_suggestion_items|tojson }};
     let editingTaskId = null;
     const removeCompletedTaskTimeouts = new Map();
     let toastTimeoutId;
 
     const THEME_STORAGE_KEY = "opentodo-theme";
     const THEME_VALUES = ["default", "warm", "dark", "ocean", "forest", "violet"];
+    const TASK_PRIORITY_VALUES = ["high", "medium", "low"];
     const themeOptionButtons = document.querySelectorAll(".theme-option[data-theme-value]");
 
     function getStoredTheme() {
@@ -700,7 +862,71 @@
         toastEl.classList.remove("hidden");
         toastTimeoutId = window.setTimeout(() => {
             toastEl.classList.add("hidden");
-        }, 2400);
+        }, 5000);
+    }
+
+    function normalizeTaskPriority(value) {
+        return TASK_PRIORITY_VALUES.includes(value) ? value : "medium";
+    }
+
+    function buildTaskFilterUrl({ projectId = CURRENT_PROJECT_ID, tagId = CURRENT_TAG_ID } = {}) {
+        const params = new URLSearchParams();
+        params.set("view", CURRENT_VIEW);
+        if (projectId) {
+            params.set("project_id", projectId);
+        }
+        if (tagId) {
+            params.set("tag_id", tagId);
+        }
+        if (CURRENT_SEARCH_QUERY) {
+            params.set("q", CURRENT_SEARCH_QUERY);
+        }
+        const query = params.toString();
+        return query ? `${INDEX_URL}?${query}` : INDEX_URL;
+    }
+
+    function syncPriorityPicker(input) {
+        if (!input) {
+            return;
+        }
+        const priority = normalizeTaskPriority(input.value);
+        input.value = priority;
+        const selected = document.querySelector(`[data-priority-selected-for="${input.id}"]`);
+        const selectedButton = document.querySelector(`[data-priority-target="${input.id}"][data-priority-option="${priority}"]`);
+        document.querySelectorAll(`[data-priority-target="${input.id}"]`).forEach((button) => {
+            const isActive = button.dataset.priorityOption === priority;
+            button.classList.toggle("active", isActive);
+            button.setAttribute("aria-pressed", isActive ? "true" : "false");
+        });
+        if (selected && selectedButton) {
+            selected.className = `priority-selected priority-option-${priority}`;
+            selected.innerHTML = selectedButton.innerHTML;
+        }
+    }
+
+    document.querySelectorAll("[data-priority-option][data-priority-target]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const input = document.getElementById(button.dataset.priorityTarget);
+            if (!input) {
+                return;
+            }
+            input.value = normalizeTaskPriority(button.dataset.priorityOption);
+            syncPriorityPicker(input);
+            document.querySelector(`[data-priority-dropdown="${input.id}"]`)?.removeAttribute("open");
+        });
+    });
+    document.addEventListener("click", (event) => {
+        document.querySelectorAll(".priority-dropdown[open]").forEach((dropdown) => {
+            if (!dropdown.contains(event.target)) {
+                dropdown.removeAttribute("open");
+            }
+        });
+    });
+    syncPriorityPicker(taskPriorityInput);
+    syncPriorityPicker(taskEditPriorityInput);
+
+    if (FLASH_MESSAGES.length) {
+        showToast(FLASH_MESSAGES.join(" • "));
     }
 
     function isMobileViewport() {
@@ -726,10 +952,14 @@
         }
         const li = document.createElement("li");
         li.className = "empty-state";
-        const isTrash = document.body.dataset.currentView === "trash";
-        li.innerHTML = isTrash
-            ? "<h3>В корзине пусто</h3><p>Выполненные задачи появляются здесь после отметки «готово».</p>"
-            : "<h3>Тут пока ничего нет</h3><p>Нажмите на кнопку \"Новая задача\" и начните планирование.</p>";
+        const currentView = document.body.dataset.currentView;
+        if (currentView === "trash") {
+            li.innerHTML = "<h3>В корзине пусто</h3><p>Удаленные задачи появляются здесь перед окончательным удалением.</p>";
+        } else if (currentView === "archive") {
+            li.innerHTML = "<h3>В архиве пусто</h3><p>Выполненные задачи появляются здесь после отметки «готово».</p>";
+        } else {
+            li.innerHTML = "<h3>Тут пока ничего нет</h3><p>Нажмите на кнопку \"Новая задача\" и начните планирование.</p>";
+        }
         taskListEl.appendChild(li);
     }
 
@@ -775,12 +1005,13 @@
                 }
                 const toggleBtn = form.querySelector("button.icon-btn");
                 const isTrashView = document.body.dataset.currentView === "trash";
+                const isArchiveView = document.body.dataset.currentView === "archive";
                 if (payload.is_done) {
                     taskItem.classList.add("done");
                     if (toggleBtn) {
                         toggleBtn.textContent = "✓";
                     }
-                    if (!isTrashView) {
+                    if (!isTrashView && !isArchiveView) {
                         const timeoutId = setTimeout(() => {
                             removeCompletedTaskTimeouts.delete(taskId);
                             taskItem.remove();
@@ -794,7 +1025,7 @@
                     if (toggleBtn) {
                         toggleBtn.textContent = "";
                     }
-                    if (isTrashView) {
+                    if (isTrashView || isArchiveView) {
                         taskItem.remove();
                         removeTaskJsonScript(taskId);
                         ensureTaskListEmptyState();
@@ -893,6 +1124,27 @@
         return input;
     }
 
+    function updateEditChecklistProgress() {
+        if (!taskEditChecklistProgress) {
+            return;
+        }
+        const rows = Array.from(taskEditChecklistItems.querySelectorAll(".checklist-builder-row"));
+        const filledRows = rows.filter((row) => {
+            const titleInput = row.querySelector('input[name="checklist_items[]"]');
+            return titleInput && titleInput.value.trim();
+        });
+        if (filledRows.length === 0) {
+            taskEditChecklistProgress.textContent = "";
+            return;
+        }
+        const doneCount = filledRows.filter((row) => {
+            const checkbox = row.querySelector(".checklist-done-toggle");
+            return checkbox && checkbox.checked;
+        }).length;
+        const progress = Math.round((doneCount / filledRows.length) * 100);
+        taskEditChecklistProgress.textContent = `(выполнено на ${progress}%)`;
+    }
+
     function addEditChecklistInput(itemId = "", itemTitle = "", isDone = false) {
         const row = document.createElement("div");
         row.className = "checklist-builder-row";
@@ -913,12 +1165,14 @@
         doneCheckbox.addEventListener("change", () => {
             doneInput.value = doneCheckbox.checked ? "1" : "0";
             row.classList.toggle("done", doneCheckbox.checked);
+            updateEditChecklistProgress();
         });
         const titleInput = document.createElement("input");
         titleInput.type = "text";
         titleInput.name = "checklist_items[]";
         titleInput.placeholder = "Пункт чеклиста";
         titleInput.value = itemTitle;
+        titleInput.addEventListener("input", updateEditChecklistProgress);
         titleInput.addEventListener("keydown", (event) => {
             if (event.key !== "Enter") {
                 return;
@@ -940,7 +1194,9 @@
             if (taskEditChecklistItems.childElementCount === 0) {
                 addEditChecklistInput("", "", false).focus();
             }
+            updateEditChecklistProgress();
         });
+        updateEditChecklistProgress();
         return titleInput;
     }
 
@@ -1060,6 +1316,235 @@
         });
     }
 
+    const knownTagColorsByLower = new Map(
+        availableTagItems.map((tag) => [String(tag.name || "").toLowerCase(), normalizeTagColorForInput(tag.color)])
+    );
+
+    function hexToRgba(hex, alpha) {
+        const normalized = normalizeTagColorForInput(hex).replace("#", "");
+        const r = parseInt(normalized.slice(0, 2), 16);
+        const g = parseInt(normalized.slice(2, 4), 16);
+        const b = parseInt(normalized.slice(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function splitTagNames(raw) {
+        const seen = new Set();
+        return String(raw || "")
+            .split(",")
+            .map((part) => part.trim())
+            .filter((name) => {
+                if (!name) {
+                    return false;
+                }
+                const key = name.toLowerCase();
+                if (seen.has(key)) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+    }
+
+    function getTaskEditSelectedTagNames() {
+        return splitTagNames(taskEditTagsInput.value);
+    }
+
+    function setTaskEditSelectedTagNames(names) {
+        taskEditTagsInput.value = splitTagNames(names.join(", ")).join(", ");
+        renderTaskEditTagPicker();
+        renderTaskEditTagMenu();
+    }
+
+    function rememberTaskTags(tags = []) {
+        tags.forEach((tag) => {
+            const name = String(tag.name || "").trim();
+            if (!name) {
+                return;
+            }
+            const key = name.toLowerCase();
+            const color = normalizeTagColorForInput(tag.color);
+            knownTagColorsByLower.set(key, color);
+            if (!availableTagItems.some((item) => String(item.name || "").toLowerCase() === key)) {
+                availableTagItems.push({ name, color });
+                availableTagNames.push(name);
+            }
+        });
+    }
+
+    function getKnownTagColor(name) {
+        return knownTagColorsByLower.get(String(name || "").toLowerCase()) || "#5b7cfa";
+    }
+
+    function renderTaskEditTagPicker() {
+        const selectedNames = getTaskEditSelectedTagNames();
+        taskEditTagsSelected.innerHTML = "";
+        selectedNames.forEach((name) => {
+            const color = getKnownTagColor(name);
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "tag-picker-chip";
+            chip.style.background = hexToRgba(color, 0.18);
+            chip.style.borderColor = hexToRgba(color, 0.32);
+            chip.style.color = color;
+            chip.setAttribute("aria-label", `Убрать метку ${name}`);
+
+            const label = document.createElement("span");
+            label.textContent = name;
+            const remove = document.createElement("span");
+            remove.className = "tag-picker-chip-remove";
+            remove.setAttribute("aria-hidden", "true");
+            remove.textContent = "✕";
+            chip.append(label, remove);
+            chip.addEventListener("click", (event) => {
+                event.stopPropagation();
+                setTaskEditSelectedTagNames(selectedNames.filter((selectedName) => selectedName.toLowerCase() !== name.toLowerCase()));
+                taskEditTagsSearch.focus();
+            });
+            taskEditTagsSelected.appendChild(chip);
+        });
+        taskEditTagsSearch.placeholder = selectedNames.length ? "" : "Добавить метку";
+    }
+
+    function openTaskEditTagMenu() {
+        taskEditTagsSuggestions.classList.remove("hidden");
+        taskEditTagsPicker.setAttribute("aria-expanded", "true");
+        renderTaskEditTagMenu();
+    }
+
+    function closeTaskEditTagMenu() {
+        taskEditTagsSuggestions.classList.add("hidden");
+        taskEditTagsPicker.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleTaskEditTag(name) {
+        const selectedNames = getTaskEditSelectedTagNames();
+        const key = String(name || "").trim().toLowerCase();
+        if (!key) {
+            return;
+        }
+        const exists = selectedNames.some((selectedName) => selectedName.toLowerCase() === key);
+        setTaskEditSelectedTagNames(
+            exists
+                ? selectedNames.filter((selectedName) => selectedName.toLowerCase() !== key)
+                : selectedNames.concat(String(name || "").trim())
+        );
+    }
+
+    function addTaskEditTagFromSearch() {
+        const typedName = taskEditTagsSearch.value.trim();
+        if (!typedName) {
+            return false;
+        }
+        const existing = availableTagItems.find((tag) => String(tag.name || "").toLowerCase() === typedName.toLowerCase());
+        const tagName = existing ? existing.name : typedName;
+        const selectedNames = getTaskEditSelectedTagNames();
+        if (!selectedNames.some((selectedName) => selectedName.toLowerCase() === String(tagName).toLowerCase())) {
+            setTaskEditSelectedTagNames(selectedNames.concat(tagName));
+        }
+        taskEditTagsSearch.value = "";
+        openTaskEditTagMenu();
+        return true;
+    }
+
+    function renderTaskEditTagMenu() {
+        const selectedNames = getTaskEditSelectedTagNames();
+        const selectedKeys = selectedNames.map((name) => name.toLowerCase());
+        const query = taskEditTagsSearch.value.trim().toLowerCase();
+        taskEditTagsSuggestions.innerHTML = "";
+
+        const matches = availableTagItems
+            .filter((tag) => String(tag.name || "").toLowerCase().includes(query))
+            .slice(0, 10);
+
+        matches.forEach((tag) => {
+            const name = String(tag.name || "").trim();
+            if (!name) {
+                return;
+            }
+            const color = normalizeTagColorForInput(tag.color);
+            const selected = selectedKeys.includes(name.toLowerCase());
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "tag-picker-option";
+            button.classList.toggle("selected", selected);
+            button.setAttribute("role", "option");
+            button.setAttribute("aria-selected", selected ? "true" : "false");
+            button.addEventListener("mousedown", (event) => {
+                event.preventDefault();
+                taskEditTagsSearch.value = "";
+                toggleTaskEditTag(name);
+                taskEditTagsSearch.focus();
+            });
+
+            const icon = document.createElement("span");
+            icon.className = "tag-picker-option-icon";
+            icon.style.color = color;
+            icon.textContent = "🏷";
+            const label = document.createElement("span");
+            label.className = "tag-picker-option-label";
+            label.textContent = name;
+            const check = document.createElement("span");
+            check.className = "tag-picker-option-check";
+            check.textContent = selected ? "✓" : "";
+            button.append(icon, label, check);
+            taskEditTagsSuggestions.appendChild(button);
+        });
+
+        const hasExactMatch = availableTagItems.some((tag) => String(tag.name || "").toLowerCase() === query);
+        if (query && !hasExactMatch) {
+            const addButton = document.createElement("button");
+            addButton.type = "button";
+            addButton.className = "tag-picker-option tag-picker-option-add";
+            addButton.addEventListener("mousedown", (event) => {
+                event.preventDefault();
+                addTaskEditTagFromSearch();
+                taskEditTagsSearch.focus();
+            });
+
+            const icon = document.createElement("span");
+            icon.className = "tag-picker-option-icon";
+            icon.textContent = "+";
+            const label = document.createElement("span");
+            label.className = "tag-picker-option-label";
+            label.textContent = `Добавить «${taskEditTagsSearch.value.trim()}»`;
+            addButton.append(icon, label);
+            taskEditTagsSuggestions.appendChild(addButton);
+        }
+
+        taskEditTagsSuggestions.classList.toggle("hidden", taskEditTagsSuggestions.childElementCount === 0);
+        taskEditTagsPicker.setAttribute("aria-expanded", taskEditTagsSuggestions.classList.contains("hidden") ? "false" : "true");
+    }
+
+    function attachTaskEditTagPicker() {
+        renderTaskEditTagPicker();
+        taskEditTagsPicker.addEventListener("click", () => {
+            taskEditTagsSearch.focus();
+            openTaskEditTagMenu();
+        });
+        taskEditTagsSearch.addEventListener("focus", openTaskEditTagMenu);
+        taskEditTagsSearch.addEventListener("input", renderTaskEditTagMenu);
+        taskEditTagsSearch.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addTaskEditTagFromSearch();
+            } else if (event.key === "Backspace" && !taskEditTagsSearch.value) {
+                const selectedNames = getTaskEditSelectedTagNames();
+                if (selectedNames.length) {
+                    setTaskEditSelectedTagNames(selectedNames.slice(0, -1));
+                }
+            } else if (event.key === "Escape") {
+                closeTaskEditTagMenu();
+            }
+        });
+        document.addEventListener("mousedown", (event) => {
+            if (taskEditTagsPicker.contains(event.target) || taskEditTagsSuggestions.contains(event.target)) {
+                return;
+            }
+            closeTaskEditTagMenu();
+        });
+    }
+
     function renderTaskEditAttachments(attachments = []) {
         taskEditAttachments.innerHTML = "";
         if (!attachments.length) {
@@ -1114,12 +1599,31 @@
         }
         const taskData = JSON.parse(dataElement.textContent);
         editingTaskId = taskId;
-        taskEditForm.action = `/edit/${taskId}?view={{ current_view }}&project_id={{ selected_project_id if selected_project_id else '' }}&tag_id={{ selected_tag_id if selected_tag_id else '' }}`;
+        const editParams = new URLSearchParams({
+            view: "{{ current_view }}",
+            project_id: "{{ selected_project_id if selected_project_id else '' }}",
+            tag_id: "{{ selected_tag_id if selected_tag_id else '' }}",
+        });
+        if (CURRENT_SEARCH_QUERY) {
+            editParams.set("q", CURRENT_SEARCH_QUERY);
+        }
+        taskEditForm.action = `/edit/${taskId}?${editParams.toString()}`;
+        taskEditDeleteForm.action = `/delete/${taskId}?${editParams.toString()}`;
+        taskEditDeleteForm.dataset.confirm = CURRENT_VIEW === "trash"
+            ? "Удалить заметку безвозвратно?"
+            : "Переместить заметку в корзину?";
         taskEditTitleInput.value = taskData.title || "";
         taskEditDescriptionInput.value = taskData.description || "";
         taskEditDueDateInput.value = taskData.due_at || "";
+        taskEditRecurrenceInput.value = taskData.recurrence || "";
+        taskEditPriorityInput.value = normalizeTaskPriority(taskData.priority);
+        syncPriorityPicker(taskEditPriorityInput);
         taskEditProjectInput.value = taskData.project_id || "";
         taskEditTagsInput.value = taskData.tag_names || "";
+        rememberTaskTags(taskData.tags || []);
+        taskEditTagsSearch.value = "";
+        renderTaskEditTagPicker();
+        closeTaskEditTagMenu();
         taskEditChecklistItems.innerHTML = "";
         (taskData.checklist_items || []).forEach((item) => {
             addEditChecklistInput(String(item.id), item.title || "", Boolean(item.is_done));
@@ -1127,6 +1631,7 @@
         if (taskEditChecklistItems.childElementCount === 0) {
             addEditChecklistInput("", "", false);
         }
+        updateEditChecklistProgress();
         renderTaskEditAttachments(taskData.attachments || []);
         taskEditNewAttachmentsInput.value = "";
         taskEditNewAttachmentsInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1137,6 +1642,7 @@
 
     function closeTaskEditModal() {
         editingTaskId = null;
+        closeTaskEditTagMenu();
         taskEditModalOverlay.classList.add("hidden");
         syncModalOpenState();
     }
@@ -1146,6 +1652,12 @@
         if (!taskItem) {
             return;
         }
+        rememberTaskTags(taskData.tags || []);
+        const priority = normalizeTaskPriority(taskData.priority);
+        TASK_PRIORITY_VALUES.forEach((value) => {
+            taskItem.classList.remove(`task-priority-${value}`);
+        });
+        taskItem.classList.add(`task-priority-${priority}`);
         const taskContent = taskItem.querySelector(".task-content");
         const titleEl = taskItem.querySelector(".task-title");
         titleEl.textContent = taskData.title;
@@ -1163,6 +1675,21 @@
             }
         } else if (descIndicator) {
             descIndicator.remove();
+        }
+
+        const checklistCount = Array.isArray(taskData.checklist_items) ? taskData.checklist_items.length : 0;
+        let checklistIndicator = taskItem.querySelector(".task-checklist-indicator");
+        if (checklistCount > 0) {
+            if (!checklistIndicator) {
+                checklistIndicator = document.createElement("span");
+                checklistIndicator.className = "task-checklist-indicator";
+                checklistIndicator.setAttribute("aria-hidden", "true");
+                taskItem.appendChild(checklistIndicator);
+            }
+            checklistIndicator.title = `Чек-лист: ${checklistCount}`;
+            checklistIndicator.textContent = `☑ ${checklistCount}`;
+        } else if (checklistIndicator) {
+            checklistIndicator.remove();
         }
 
         const attachmentCount = Array.isArray(taskData.attachments) ? taskData.attachments.length : 0;
@@ -1195,16 +1722,33 @@
             currentDateBadge.remove();
         }
 
+        const currentRecurrenceBadge = taskItem.querySelector(".recurrence-badge");
+        if (taskData.recurrence_label) {
+            const recurrenceText = `↻ ${taskData.recurrence_label}`;
+            if (currentRecurrenceBadge) {
+                currentRecurrenceBadge.textContent = recurrenceText;
+            } else {
+                const span = document.createElement("span");
+                span.className = "recurrence-badge";
+                span.textContent = recurrenceText;
+                taskContent.appendChild(span);
+            }
+        } else if (currentRecurrenceBadge) {
+            currentRecurrenceBadge.remove();
+        }
+
         const currentProjectBadge = taskItem.querySelector(".project-badge");
         if (taskData.project_name) {
             const projectText = `${taskData.project_icon} ${taskData.project_name}`;
             if (currentProjectBadge) {
                 currentProjectBadge.textContent = projectText;
+                currentProjectBadge.href = buildTaskFilterUrl({ projectId: taskData.project_id });
             } else {
-                const span = document.createElement("span");
-                span.className = "project-badge";
-                span.textContent = projectText;
-                taskContent.appendChild(span);
+                const link = document.createElement("a");
+                link.className = "project-badge";
+                link.href = buildTaskFilterUrl({ projectId: taskData.project_id });
+                link.textContent = projectText;
+                taskContent.appendChild(link);
             }
         } else if (currentProjectBadge) {
             currentProjectBadge.remove();
@@ -1218,8 +1762,9 @@
             const tagsWrap = document.createElement("div");
             tagsWrap.className = "task-tags";
             taskData.tags.forEach((tag) => {
-                const tagEl = document.createElement("span");
+                const tagEl = document.createElement("a");
                 tagEl.className = "task-tag";
+                tagEl.href = buildTaskFilterUrl({ tagId: tag.id });
                 tagEl.style.background = normalizeTagColorForInput(tag.color);
                 tagEl.textContent = tag.name || "";
                 tagsWrap.appendChild(tagEl);
@@ -1250,8 +1795,15 @@
     }
 
     function openProjectEditModal(projectId, projectName, projectIcon) {
-        projectEditForm.action = `/projects/edit/${projectId}?view={{ current_view }}`;
-        projectDeleteForm.action = `/projects/delete/${projectId}?view={{ current_view }}&selected_project_id={{ selected_project_id if selected_project_id else '' }}`;
+        const projectParams = new URLSearchParams({
+            view: "{{ current_view }}",
+            selected_project_id: "{{ selected_project_id if selected_project_id else '' }}",
+        });
+        if (CURRENT_SEARCH_QUERY) {
+            projectParams.set("q", CURRENT_SEARCH_QUERY);
+        }
+        projectEditForm.action = `/projects/edit/${projectId}?${projectParams.toString()}`;
+        projectDeleteForm.action = `/projects/delete/${projectId}?${projectParams.toString()}`;
         projectEditNameInput.value = projectName;
         projectEditIconInput.value = projectIcon;
         projectEditModalOverlay.classList.remove("hidden");
@@ -1296,6 +1848,7 @@
 
     function openTagEditModal(tagId, tagName, tagColor) {
         tagEditForm.action = `/tags/edit/${tagId}`;
+        tagDeleteForm.action = `/tags/delete/${tagId}`;
         tagEditNameInput.value = tagName;
         tagEditColorInput.value = normalizeTagColorForInput(tagColor);
         syncColorInputPreview(tagEditColorInput);
@@ -1335,7 +1888,7 @@
     tagColorInput.addEventListener("input", () => syncColorInputPreview(tagColorInput));
     tagEditColorInput.addEventListener("input", () => syncColorInputPreview(tagEditColorInput));
     attachTagAutocomplete(taskTagsInput, taskTagsSuggestions);
-    attachTagAutocomplete(taskEditTagsInput, taskEditTagsSuggestions);
+    attachTaskEditTagPicker();
     attachFileDropzones();
 
     if (openTaskModalBtn) {
@@ -1429,6 +1982,7 @@
     });
     taskEditAddChecklistItemBtn.addEventListener("click", () => addEditChecklistInput("", "", false).focus());
     taskEditSaveBtn.addEventListener("click", async () => {
+        addTaskEditTagFromSearch();
         taskEditSaveBtn.disabled = true;
         try {
             const response = await fetch(taskEditForm.action, {

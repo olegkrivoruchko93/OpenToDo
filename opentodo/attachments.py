@@ -11,6 +11,7 @@ from .parsing import format_iso_datetime, parse_iso_datetime
 
 
 def format_file_size(size_bytes: int) -> str:
+    """Format a byte count with a compact binary unit."""
     size = max(int(size_bytes or 0), 0)
     units = ["B", "KB", "MB", "GB"]
     value = float(size)
@@ -24,6 +25,7 @@ def format_file_size(size_bytes: int) -> str:
 
 
 def normalize_attachment_filename(filename: str) -> str:
+    """Return a safe display filename for an uploaded or imported file."""
     raw_name = (filename or "").replace("\\", "/").split("/")[-1].strip()
     if raw_name:
         return raw_name[:255]
@@ -32,6 +34,7 @@ def normalize_attachment_filename(filename: str) -> str:
 
 
 def serialize_attachment(attachment: TaskAttachment):
+    """Convert an attachment to a template/API payload."""
     return {
         "id": attachment.id,
         "filename": attachment.filename,
@@ -43,6 +46,7 @@ def serialize_attachment(attachment: TaskAttachment):
 
 
 def serialize_backup_attachment(attachment: TaskAttachment) -> dict:
+    """Convert an attachment to a backup payload with base64 content."""
     return {
         "id": attachment.id,
         "filename": attachment.filename,
@@ -54,15 +58,18 @@ def serialize_backup_attachment(attachment: TaskAttachment) -> dict:
 
 
 def get_uploaded_attachment_files(field_name: str = ATTACHMENT_FIELD_NAME):
+    """Return uploaded files from the current request that have filenames."""
     return [file for file in request.files.getlist(field_name) if file and file.filename]
 
 
 def validate_attachment_capacity(existing_count: int, new_count: int) -> None:
+    """Raise when adding files would exceed the per-task attachment limit."""
     if existing_count + new_count > MAX_ATTACHMENTS_PER_TASK:
         raise ValueError(f"К задаче можно прикрепить не больше {MAX_ATTACHMENTS_PER_TASK} файлов.")
 
 
 def create_attachment_from_bytes(filename: str, content_type: str, content: bytes, created_at: datetime | None = None):
+    """Build a task attachment from raw bytes after size validation."""
     if len(content) > MAX_ATTACHMENT_BYTES:
         raise ValueError(
             f"Файл «{normalize_attachment_filename(filename)}» больше лимита {format_file_size(MAX_ATTACHMENT_BYTES)}."
@@ -77,6 +84,7 @@ def create_attachment_from_bytes(filename: str, content_type: str, content: byte
 
 
 def add_uploaded_attachments_to_task(task: Task, existing_count: int = 0) -> int:
+    """Attach uploaded request files to a task and return the number added."""
     files = get_uploaded_attachment_files()
     validate_attachment_capacity(existing_count, len(files))
     added_count = 0
@@ -90,6 +98,7 @@ def add_uploaded_attachments_to_task(task: Task, existing_count: int = 0) -> int
 
 
 def create_attachment_from_backup(raw_attachment: dict):
+    """Build an attachment from a backup payload."""
     if not isinstance(raw_attachment, dict):
         return None
     encoded = raw_attachment.get("content_base64") or ""

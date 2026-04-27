@@ -4,9 +4,10 @@ from flask import redirect, request, url_for
 
 
 def get_navigation_context():
+    """Read and normalize the current task list navigation filters."""
     # Prefer explicit form fields from POST, fallback to query string.
     current_view = (request.form.get("view") or request.args.get("view") or "inbox").strip()
-    if current_view not in {"inbox", "today", "plans", "trash"}:
+    if current_view not in {"inbox", "today", "plans", "archive", "trash"}:
         current_view = "inbox"
     selected_project_raw = (
         request.form.get("filter_project_id")
@@ -19,10 +20,12 @@ def get_navigation_context():
     selected_tag_raw = (request.form.get("tag_id") or request.args.get("tag_id") or "").strip()
     if not selected_tag_raw.isdigit():
         selected_tag_raw = ""
-    return current_view, selected_project_raw, selected_tag_raw
+    search_query = (request.form.get("q") or request.args.get("q") or "").strip()
+    return current_view, selected_project_raw, selected_tag_raw, search_query
 
 
 def redirect_to_current_view():
+    """Redirect back to the current task view or a safe same-host referrer."""
     referrer = (request.referrer or "").strip()
     if referrer:
         parsed_referrer = urlparse(referrer)
@@ -30,7 +33,13 @@ def redirect_to_current_view():
         if parsed_referrer.scheme in {"http", "https"} and parsed_referrer.hostname == current_host:
             return redirect(referrer)
 
-    current_view, selected_project_raw, selected_tag_raw = get_navigation_context()
+    current_view, selected_project_raw, selected_tag_raw, search_query = get_navigation_context()
     return redirect(
-        url_for("main.index", view=current_view, project_id=selected_project_raw or None, tag_id=selected_tag_raw or None)
+        url_for(
+            "main.index",
+            view=current_view,
+            project_id=selected_project_raw or None,
+            tag_id=selected_tag_raw or None,
+            q=search_query or None,
+        )
     )

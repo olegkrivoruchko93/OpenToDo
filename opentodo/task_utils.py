@@ -1,13 +1,20 @@
 from flask import request
 
 from .attachments import serialize_attachment
-from .constants import PROJECT_ICON_MAP
+from .constants import (
+    PROJECT_ICON_MAP,
+    TASK_PRIORITY_LABELS,
+    TASK_RECURRENCE_LABELS,
+    normalize_task_priority,
+    normalize_task_recurrence,
+)
 from .extensions import db
 from .models import Project, Tag, Task
 from .parsing import parse_tag_color
 
 
 def resolve_user_project(project_raw: str, user_id: int):
+    """Return a project owned by the user for a raw form value."""
     project_value = (project_raw or "").strip()
     if not project_value:
         return None
@@ -17,6 +24,7 @@ def resolve_user_project(project_raw: str, user_id: int):
 
 
 def parse_checklist_items_from_form():
+    """Return non-empty checklist item titles from the current form."""
     raw_items = request.form.getlist("checklist_items[]")
     cleaned_items = []
     for item in raw_items:
@@ -27,6 +35,7 @@ def parse_checklist_items_from_form():
 
 
 def parse_tag_names_from_form():
+    """Parse a comma-separated tag field into unique tag names."""
     raw_value = (request.form.get("tag_names") or "").strip()
     if not raw_value:
         return []
@@ -45,6 +54,7 @@ def parse_tag_names_from_form():
 
 
 def resolve_or_create_tags(user_id: int, tag_names: list[str]):
+    """Resolve existing user tags and create any missing tag names."""
     if not tag_names:
         return []
     lowered_names = [name.lower() for name in tag_names]
@@ -64,11 +74,22 @@ def resolve_or_create_tags(user_id: int, tag_names: list[str]):
 
 
 def serialize_task(task: Task):
+    """Convert a task and related records to a template/API payload."""
     due_at = task.due_at
+    priority = normalize_task_priority(task.priority)
+    recurrence = normalize_task_recurrence(task.recurrence)
     return {
         "id": task.id,
         "title": task.title,
         "description": task.description,
+        "priority": priority,
+        "priority_label": TASK_PRIORITY_LABELS[priority],
+        "recurrence": recurrence or "",
+        "recurrence_label": TASK_RECURRENCE_LABELS[recurrence] if recurrence else "",
+        "recurrence_parent_id": task.recurrence_parent_id or "",
+        "is_done": task.is_done,
+        "is_archived": task.is_archived,
+        "is_deleted": task.is_deleted,
         "due_at": due_at.strftime("%Y-%m-%dT%H:%M") if due_at else "",
         "due_date": due_at.date().isoformat() if due_at else (task.due_date.isoformat() if task.due_date else ""),
         "formatted_due_date": due_at.strftime("%d.%m.%Y %H:%M") if due_at else (

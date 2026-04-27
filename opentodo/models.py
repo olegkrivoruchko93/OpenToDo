@@ -2,7 +2,7 @@ from datetime import datetime
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from .constants import DEFAULT_PROJECT_ICON
+from .constants import DEFAULT_PROJECT_ICON, DEFAULT_TASK_PRIORITY
 from .extensions import db
 
 
@@ -14,6 +14,8 @@ task_tag = db.Table(
 
 
 class User(db.Model):
+    """Registered application user with task ownership and Telegram settings."""
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
@@ -27,13 +29,17 @@ class User(db.Model):
     tags = db.relationship("Tag", backref="owner", lazy=True, cascade="all, delete-orphan")
 
     def set_password(self, password: str) -> None:
+        """Hash and store a new password for the user."""
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
+        """Return whether a plain password matches the stored hash."""
         return check_password_hash(self.password_hash, password)
 
 
 class Task(db.Model):
+    """User task with optional deadline, project, tags, checklist, and files."""
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False, default="")
@@ -41,7 +47,12 @@ class Task(db.Model):
     due_at = db.Column(db.DateTime, nullable=True)
     notification_sent_at = db.Column(db.DateTime, nullable=True)
     telegram_notification_enabled = db.Column(db.Boolean, default=True, nullable=False)
+    priority = db.Column(db.String(16), default=DEFAULT_TASK_PRIORITY, nullable=False)
+    recurrence = db.Column(db.String(16), nullable=True)
+    recurrence_parent_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=True)
     is_done = db.Column(db.Boolean, default=False, nullable=False)
+    is_archived = db.Column(db.Boolean, default=False, nullable=False)
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     project_id = db.Column(db.Integer, db.ForeignKey("project.id"), nullable=True)
@@ -63,6 +74,8 @@ class Task(db.Model):
 
 
 class ChecklistItem(db.Model):
+    """Single checklist row belonging to a task."""
+
     id = db.Column(db.Integer, primary_key=True)
     task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=False)
     title = db.Column(db.String(255), nullable=False)
@@ -71,6 +84,8 @@ class ChecklistItem(db.Model):
 
 
 class TaskAttachment(db.Model):
+    """Binary file attached to a task."""
+
     id = db.Column(db.Integer, primary_key=True)
     task_id = db.Column(db.Integer, db.ForeignKey("task.id"), nullable=False)
     filename = db.Column(db.String(255), nullable=False)
@@ -81,6 +96,8 @@ class TaskAttachment(db.Model):
 
 
 class Project(db.Model):
+    """User project used to group tasks."""
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False)
     icon = db.Column(db.String(32), nullable=False, default=DEFAULT_PROJECT_ICON)
@@ -90,6 +107,8 @@ class Project(db.Model):
 
 
 class Tag(db.Model):
+    """User tag used for task categorization."""
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
     color = db.Column(db.String(16), nullable=False, default="#5b7cfa")

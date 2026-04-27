@@ -13,6 +13,7 @@ _scheduler: BackgroundScheduler | None = None
 
 
 def send_due_task_notifications(app) -> None:
+    """Send Telegram notifications for due tasks that have not been notified."""
     with app.app_context():
         now = datetime.now()
         tasks = (
@@ -41,6 +42,7 @@ def send_due_task_notifications(app) -> None:
 
 
 def start_notification_scheduler(app) -> None:
+    """Start the background scheduler for Telegram task notifications."""
     global _scheduler
     if _scheduler is not None or not app.config.get("NOTIFICATIONS_ENABLED", True):
         return

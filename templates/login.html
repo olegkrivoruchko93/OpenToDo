@@ -19,16 +19,6 @@
 <main class="container auth-container">
     <h1>Вход в OpenToDo</h1>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul class="flash-list">
-                {% for message in messages %}
-                    <li class="flash-message">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-
     <form class="auth-form" action="{{ url_for('auth.login') }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="text" name="username" placeholder="Логин" required>
@@ -38,5 +28,27 @@
 
     <p class="auth-hint">Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
 </main>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<script>
+    const FLASH_MESSAGES = {{ get_flashed_messages()|tojson }};
+    const toastEl = document.getElementById("toast");
+    let toastTimeoutId;
+
+    function showToast(message) {
+        if (!toastEl) {
+            return;
+        }
+        clearTimeout(toastTimeoutId);
+        toastEl.textContent = message;
+        toastEl.classList.remove("hidden");
+        toastTimeoutId = window.setTimeout(() => {
+            toastEl.classList.add("hidden");
+        }, 5000);
+    }
+
+    if (FLASH_MESSAGES.length) {
+        showToast(FLASH_MESSAGES.join(" • "));
+    }
+</script>
 </body>
 </html>

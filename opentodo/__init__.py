@@ -8,6 +8,7 @@ from .extensions import db
 
 
 def create_app(config_object=Config) -> Flask:
+    """Create and configure the Flask application instance."""
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(config_object)
 

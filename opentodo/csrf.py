@@ -7,6 +7,7 @@ from .constants import CSRF_FIELD_NAME, CSRF_SESSION_KEY
 
 
 def get_csrf_token() -> str:
+    """Return the session CSRF token, creating one when needed."""
     token = session.get(CSRF_SESSION_KEY)
     if not token:
         token = token_urlsafe(32)
@@ -15,6 +16,7 @@ def get_csrf_token() -> str:
 
 
 def is_valid_csrf_token() -> bool:
+    """Check whether the submitted CSRF token matches the session token."""
     expected_token = session.get(CSRF_SESSION_KEY)
     supplied_token = (
         request.form.get(CSRF_FIELD_NAME)
@@ -29,6 +31,7 @@ def is_valid_csrf_token() -> bool:
 
 
 def validate_csrf_for_mutations():
+    """Reject POST requests that do not include a valid CSRF token."""
     if request.method != "POST":
         return None
     if is_valid_csrf_token():

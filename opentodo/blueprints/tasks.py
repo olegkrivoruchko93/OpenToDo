@@ -2,10 +2,12 @@ from flask import Blueprint, flash, g, jsonify, redirect, request, session, url_
 
 from ..attachments import add_uploaded_attachments_to_task
 from ..auth_utils import login_required
+from ..constants import normalize_task_priority, normalize_task_recurrence
 from ..extensions import db
 from ..models import ChecklistItem, Task
 from ..navigation import redirect_to_current_view
 from ..parsing import parse_due_at
+from ..recurrence import create_next_recurring_task
 from ..task_utils import (
     parse_checklist_items_from_form,
     parse_tag_names_from_form,
@@ -21,10 +23,13 @@ bp = Blueprint("tasks", __name__)
 @bp.route("/add", methods=["POST"])
 @login_required
 def add_task():
+    """Create a task with optional project, tags, checklist, and attachments."""
     title = request.form.get("title", "").strip()
     description = request.form.get("description", "").strip()
     due_at_raw = request.form.get("due_at") or request.form.get("due_date", "")
     due_at = parse_due_at(due_at_raw)
+    priority = normalize_task_priority(request.form.get("priority"))
+    recurrence = normalize_task_recurrence(request.form.get("recurrence"))
     project = resolve_user_project(request.form.get("project_id", ""), g.user.id)
     checklist_items = parse_checklist_items_from_form()
     tag_names = parse_tag_names_from_form()
@@ -35,6 +40,9 @@ def add_task():
     if due_at_raw.strip() and due_at is None:
         flash("Указаны некорректные дата и время.")
         return redirect_to_current_view()
+    if recurrence and due_at is None:
+        flash("Для повторяющейся задачи укажите дату и время.")
+        return redirect_to_current_view()
 
     if title:
         try:
@@ -43,6 +51,8 @@ def add_task():
                 description=description,
                 due_date=due_at.date() if due_at else None,
                 due_at=due_at,
+                priority=priority,
+                recurrence=recurrence,
                 user_id=g.user.id,
                 project_id=project.id if project else None,
             )
@@ -68,11 +78,24 @@ def add_task():
 @bp.route("/toggle/<int:task_id>", methods=["POST"])
 @login_required
 def toggle_task(task_id: int) -> object:
+    """Toggle a task's completion state and return HTML or JSON response."""
     task = Task.query.filter_by(id=task_id, user_id=g.user.id).first_or_404()
+    if task.is_deleted:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return jsonify({"ok": False, "error": "Задача находится в корзине."}), 400
+        flash("Задача находится в корзине.")
+        return redirect_to_current_view()
+    was_done = task.is_done
     task.is_done = not task.is_done
+    if not was_done and task.is_done:
+        task.is_archived = True
+        task.is_deleted = False
+        create_next_recurring_task(task)
+    elif was_done and not task.is_done:
+        task.is_archived = False
     db.session.commit()
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"ok": True, "is_done": task.is_done})
+        return jsonify({"ok": True, "is_done": task.is_done, "is_archived": task.is_archived})
     current_view = (
         request.form.get("view")
         or request.args.get("view")
@@ -91,13 +114,25 @@ def toggle_task(task_id: int) -> object:
         or session.get("last_tag_id")
         or ""
     ).strip()
-    if current_view in {"inbox", "today", "plans", "trash"}:
+    search_query = (
+        request.form.get("q")
+        or request.args.get("q")
+        or session.get("last_search_query")
+        or ""
+    ).strip()
+    if current_view in {"inbox", "today", "plans", "archive", "trash"}:
         if not selected_project_raw.isdigit():
             selected_project_raw = ""
         if not selected_tag_raw.isdigit():
             selected_tag_raw = ""
         return redirect(
-            url_for("main.index", view=current_view, project_id=selected_project_raw or None, tag_id=selected_tag_raw or None)
+            url_for(
+                "main.index",
+                view=current_view,
+                project_id=selected_project_raw or None,
+                tag_id=selected_tag_raw or None,
+                q=search_query or None,
+            )
         )
     return redirect_to_current_view()
 
@@ -105,6 +140,7 @@ def toggle_task(task_id: int) -> object:
 @bp.route("/checklist/toggle/<int:item_id>", methods=["POST"])
 @login_required
 def toggle_checklist_item(item_id: int):
+    """Toggle a checklist item that belongs to the current user."""
     checklist_item = (
         ChecklistItem.query.join(Task, ChecklistItem.task_id == Task.id)
         .filter(ChecklistItem.id == item_id, Task.user_id == g.user.id)
@@ -118,8 +154,13 @@ def toggle_checklist_item(item_id: int):
 @bp.route("/delete/<int:task_id>", methods=["POST"])
 @login_required
 def delete_task(task_id: int):
+    """Move a task to trash or permanently delete it from trash."""
     task = Task.query.filter_by(id=task_id, user_id=g.user.id).first_or_404()
-    db.session.delete(task)
+    if task.is_deleted:
+        db.session.delete(task)
+    else:
+        task.is_deleted = True
+        task.is_archived = False
     db.session.commit()
     return redirect_to_current_view()
 
@@ -127,6 +168,7 @@ def delete_task(task_id: int):
 @bp.route("/edit/<int:task_id>", methods=["GET", "POST"])
 @login_required
 def edit_task(task_id: int):
+    """Update task fields, checklist items, tags, and attachments."""
     task = Task.query.filter_by(id=task_id, user_id=g.user.id).first_or_404()
     if request.method == "GET":
         return redirect_to_current_view()
@@ -136,6 +178,8 @@ def edit_task(task_id: int):
     description = request.form.get("description", "").strip()
     due_at_raw = request.form.get("due_at") or request.form.get("due_date", "")
     due_at = parse_due_at(due_at_raw)
+    priority = normalize_task_priority(request.form.get("priority"))
+    recurrence = normalize_task_recurrence(request.form.get("recurrence"))
     project = resolve_user_project(request.form.get("project_id", ""), g.user.id)
     checklist_titles = request.form.getlist("checklist_items[]")
     checklist_item_ids = request.form.getlist("checklist_item_id[]")
@@ -152,6 +196,12 @@ def edit_task(task_id: int):
             return jsonify({"ok": False, "error": "Указаны некорректные дата и время."}), 400
         flash("Указаны некорректные дата и время.")
         return redirect_to_current_view()
+    if recurrence and due_at is None:
+        error_message = "Для повторяющейся задачи укажите дату и время."
+        if wants_json:
+            return jsonify({"ok": False, "error": error_message}), 400
+        flash(error_message)
+        return redirect_to_current_view()
 
     if not title:
         if wants_json:
@@ -166,6 +216,8 @@ def edit_task(task_id: int):
             task.notification_sent_at = None
         task.due_date = due_at.date() if due_at else None
         task.due_at = due_at
+        task.priority = priority
+        task.recurrence = recurrence
         task.project_id = project.id if project else None
         task.tags = resolve_or_create_tags(g.user.id, tag_names)
         existing_items_by_id = {item.id: item for item in task.checklist_items}

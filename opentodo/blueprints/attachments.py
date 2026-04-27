@@ -14,6 +14,7 @@ bp = Blueprint("attachments", __name__)
 @bp.route("/attachments/<int:attachment_id>/download", methods=["GET"])
 @login_required
 def download_attachment(attachment_id: int):
+    """Send an attachment file owned by the current user."""
     attachment = (
         TaskAttachment.query.join(Task, TaskAttachment.task_id == Task.id)
         .filter(TaskAttachment.id == attachment_id, Task.user_id == g.user.id)
@@ -30,6 +31,7 @@ def download_attachment(attachment_id: int):
 @bp.route("/attachments/<int:attachment_id>/delete", methods=["POST"])
 @login_required
 def delete_attachment(attachment_id: int):
+    """Delete an attachment owned by the current user."""
     attachment = (
         TaskAttachment.query.join(Task, TaskAttachment.task_id == Task.id)
         .filter(TaskAttachment.id == attachment_id, Task.user_id == g.user.id)

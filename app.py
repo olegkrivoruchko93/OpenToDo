@@ -11,4 +11,4 @@ start_notification_scheduler(app)
 
 
 if __name__ == "__main__":
-    app.run(host=os.environ.get("FLASK_RUN_HOST", "0.0.0.0"), debug=False)
+    app.run(host=os.environ.get("FLASK_RUN_HOST", "0.0.0.0"), debug=True)

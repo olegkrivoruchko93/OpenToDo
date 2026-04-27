@@ -3,6 +3,8 @@ from secrets import token_urlsafe
 
 
 class Config:
+    """Default Flask application configuration loaded from environment variables."""
+
     TEMPLATES_AUTO_RELOAD = os.environ.get("FLASK_TEMPLATES_AUTO_RELOAD", "").lower() in {"1", "true", "yes"}
     DEBUG = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
     SQLALCHEMY_DATABASE_URI = "sqlite:///todo.db"

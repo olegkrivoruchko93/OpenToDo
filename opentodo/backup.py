@@ -8,17 +8,19 @@ from .attachments import (
     serialize_backup_attachment,
     validate_attachment_capacity,
 )
+from .constants import normalize_task_priority, normalize_task_recurrence
 from .extensions import db
 from .models import ChecklistItem, Project, Tag, Task
 from .parsing import format_iso_datetime, parse_csv_bool, parse_due_at, parse_due_date, parse_iso_datetime, parse_project_icon, parse_tag_color
 
 
 def collect_backup_payload(user_id: int) -> dict:
+    """Collect all backup-supported data for a user into a JSON payload."""
     projects = Project.query.filter_by(user_id=user_id).order_by(Project.id.asc()).all()
     tags = Tag.query.filter_by(user_id=user_id).order_by(Tag.id.asc()).all()
     tasks = Task.query.filter_by(user_id=user_id).order_by(Task.id.asc()).all()
     return {
-        "schema_version": 3,
+        "schema_version": 6,
         "exported_at": datetime.utcnow().isoformat(),
         "projects": [
             {
@@ -47,7 +49,12 @@ def collect_backup_payload(user_id: int) -> dict:
                 "due_at": format_iso_datetime(task.due_at),
                 "notification_sent_at": format_iso_datetime(task.notification_sent_at),
                 "telegram_notification_enabled": task.telegram_notification_enabled,
+                "priority": normalize_task_priority(task.priority),
+                "recurrence": normalize_task_recurrence(task.recurrence) or "",
+                "recurrence_parent_id": task.recurrence_parent_id or "",
                 "is_done": task.is_done,
+                "is_archived": task.is_archived,
+                "is_deleted": task.is_deleted,
                 "created_at": format_iso_datetime(task.created_at),
                 "project_id": task.project_id or "",
                 "checklist_items": [
@@ -68,6 +75,7 @@ def collect_backup_payload(user_id: int) -> dict:
 
 
 def clear_user_data(user_id: int) -> None:
+    """Delete all backup-managed records that belong to a user."""
     tasks = Task.query.filter_by(user_id=user_id).all()
     for task in tasks:
         task.tags = []
@@ -79,6 +87,7 @@ def clear_user_data(user_id: int) -> None:
 
 
 def apply_json_backup(payload: dict, user_id: int, mode: str) -> dict:
+    """Import a JSON backup payload for a user and return import statistics."""
     if not isinstance(payload, dict):
         raise ValueError("Некорректный формат JSON backup.")
     if mode not in {"merge", "replace"}:
@@ -89,6 +98,8 @@ def apply_json_backup(payload: dict, user_id: int, mode: str) -> dict:
 
     project_map: dict[int, Project] = {}
     tag_map: dict[int, Tag] = {}
+    task_map: dict[int, Task] = {}
+    pending_recurrence_parent_links: list[tuple[Task, int]] = []
     stats = {"projects": 0, "tags": 0, "tasks": 0, "checklist_items": 0, "task_tag_links": 0, "attachments": 0}
 
     for project_raw in payload.get("projects", []):
@@ -141,6 +152,10 @@ def apply_json_backup(payload: dict, user_id: int, mode: str) -> dict:
         due_date = due_at.date() if due_at else parse_due_date(task_raw.get("due_date", ""))
         if due_at is None and due_date is not None:
             due_at = datetime.combine(due_date, time(hour=9))
+        recurrence = normalize_task_recurrence(task_raw.get("recurrence"))
+        is_done = bool(task_raw.get("is_done", False))
+        is_archived = bool(task_raw.get("is_archived", is_done))
+        is_deleted = bool(task_raw.get("is_deleted", False))
         task = Task(
             title=title[:200],
             description=(task_raw.get("description") or "")[:5000],
@@ -150,7 +165,11 @@ def apply_json_backup(payload: dict, user_id: int, mode: str) -> dict:
             if task_raw.get("notification_sent_at")
             else None,
             telegram_notification_enabled=bool(task_raw.get("telegram_notification_enabled", True)),
-            is_done=bool(task_raw.get("is_done", False)),
+            priority=normalize_task_priority(task_raw.get("priority")),
+            recurrence=recurrence,
+            is_done=is_done,
+            is_archived=is_archived,
+            is_deleted=is_deleted,
             created_at=parse_iso_datetime(task_raw.get("created_at", "")),
             user_id=user_id,
             project_id=project_obj.id if project_obj else None,
@@ -158,6 +177,12 @@ def apply_json_backup(payload: dict, user_id: int, mode: str) -> dict:
         db.session.add(task)
         db.session.flush()
         stats["tasks"] += 1
+        task_raw_id = task_raw.get("id")
+        if isinstance(task_raw_id, int):
+            task_map[task_raw_id] = task
+        raw_recurrence_parent_id = task_raw.get("recurrence_parent_id")
+        if isinstance(raw_recurrence_parent_id, int):
+            pending_recurrence_parent_links.append((task, raw_recurrence_parent_id))
 
         for item_raw in task_raw.get("checklist_items", []):
             item_title = (item_raw.get("title") or "").strip()
@@ -193,10 +218,16 @@ def apply_json_backup(payload: dict, user_id: int, mode: str) -> dict:
                 db.session.add(attachment)
                 stats["attachments"] += 1
 
+    for task, raw_parent_id in pending_recurrence_parent_links:
+        parent_task = task_map.get(raw_parent_id)
+        if parent_task is not None and parent_task.id != task.id:
+            task.recurrence_parent_id = parent_task.id
+
     return stats
 
 
 def build_backup_csv_zip(payload: dict) -> bytes:
+    """Serialize a backup payload into a ZIP archive of CSV files."""
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         csv_files = {
@@ -210,7 +241,12 @@ def build_backup_csv_zip(payload: dict) -> bytes:
                 "due_at",
                 "notification_sent_at",
                 "telegram_notification_enabled",
+                "priority",
+                "recurrence",
+                "recurrence_parent_id",
                 "is_done",
+                "is_archived",
+                "is_deleted",
                 "created_at",
                 "project_id",
             ],
@@ -231,7 +267,12 @@ def build_backup_csv_zip(payload: dict) -> bytes:
                     "due_at": task.get("due_at", ""),
                     "notification_sent_at": task.get("notification_sent_at", ""),
                     "telegram_notification_enabled": task.get("telegram_notification_enabled", True),
+                    "priority": normalize_task_priority(task.get("priority")),
+                    "recurrence": normalize_task_recurrence(task.get("recurrence")) or "",
+                    "recurrence_parent_id": task.get("recurrence_parent_id", ""),
                     "is_done": task.get("is_done", False),
+                    "is_archived": task.get("is_archived", task.get("is_done", False)),
+                    "is_deleted": task.get("is_deleted", False),
                     "created_at": task.get("created_at", ""),
                     "project_id": task.get("project_id", ""),
                 }
@@ -271,8 +312,9 @@ def build_backup_csv_zip(payload: dict) -> bytes:
 
 
 def parse_csv_zip_to_payload(file_bytes: bytes) -> dict:
+    """Parse a ZIP archive of backup CSV files into a JSON-style payload."""
     required = {"projects.csv", "tags.csv", "tasks.csv", "checklist_items.csv", "task_tags.csv"}
-    payload = {"schema_version": 3, "exported_at": datetime.utcnow().isoformat(), "projects": [], "tags": [], "tasks": []}
+    payload = {"schema_version": 6, "exported_at": datetime.utcnow().isoformat(), "projects": [], "tags": [], "tasks": []}
     with zipfile.ZipFile(io.BytesIO(file_bytes), "r") as zf:
         names = set(zf.namelist())
         if not required.issubset(names):
@@ -280,6 +322,7 @@ def parse_csv_zip_to_payload(file_bytes: bytes) -> dict:
             raise ValueError(f"В архиве отсутствуют обязательные файлы: {missing}")
 
         def read_csv(name: str):
+            """Read one CSV file from the backup archive."""
             with zf.open(name, "r") as raw:
                 decoded = raw.read().decode("utf-8-sig")
                 return list(csv.DictReader(io.StringIO(decoded)))
@@ -318,6 +361,7 @@ def parse_csv_zip_to_payload(file_bytes: bytes) -> dict:
             if not task_id_raw.isdigit():
                 continue
             task_id = int(task_id_raw)
+            is_done = parse_csv_bool(row.get("is_done", ""))
             tasks_by_id[task_id] = {
                 "id": task_id,
                 "title": row.get("title", ""),
@@ -326,7 +370,14 @@ def parse_csv_zip_to_payload(file_bytes: bytes) -> dict:
                 "due_at": row.get("due_at", ""),
                 "notification_sent_at": row.get("notification_sent_at", ""),
                 "telegram_notification_enabled": parse_csv_bool(row.get("telegram_notification_enabled", "1")),
-                "is_done": parse_csv_bool(row.get("is_done", "")),
+                "priority": normalize_task_priority(row.get("priority")),
+                "recurrence": normalize_task_recurrence(row.get("recurrence")) or "",
+                "recurrence_parent_id": int(row["recurrence_parent_id"])
+                if (row.get("recurrence_parent_id") or "").isdigit()
+                else "",
+                "is_done": is_done,
+                "is_archived": parse_csv_bool(row.get("is_archived", "1" if is_done else "")),
+                "is_deleted": parse_csv_bool(row.get("is_deleted", "")),
                 "created_at": row.get("created_at", ""),
                 "project_id": int(row["project_id"]) if (row.get("project_id") or "").isdigit() else "",
                 "checklist_items": [],

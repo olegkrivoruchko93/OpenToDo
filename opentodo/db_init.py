@@ -5,6 +5,7 @@ from .extensions import db
 
 
 def init_db(app: Flask) -> None:
+    """Create database tables and apply lightweight SQLite migrations."""
     with app.app_context():
         db.create_all()
         inspector = inspect(db.engine)
@@ -51,6 +52,25 @@ def init_db(app: Flask) -> None:
             db.session.execute(
                 text("UPDATE task SET telegram_notification_enabled = 1 WHERE telegram_notification_enabled IS NULL")
             )
+            db.session.commit()
+        if "priority" not in task_columns:
+            db.session.execute(text("ALTER TABLE task ADD COLUMN priority VARCHAR(16) DEFAULT 'medium'"))
+            db.session.execute(text("UPDATE task SET priority = 'medium' WHERE priority IS NULL OR priority = ''"))
+            db.session.commit()
+        if "recurrence" not in task_columns:
+            db.session.execute(text("ALTER TABLE task ADD COLUMN recurrence VARCHAR(16)"))
+            db.session.commit()
+        if "recurrence_parent_id" not in task_columns:
+            db.session.execute(text("ALTER TABLE task ADD COLUMN recurrence_parent_id INTEGER"))
+            db.session.commit()
+        if "is_archived" not in task_columns:
+            db.session.execute(text("ALTER TABLE task ADD COLUMN is_archived BOOLEAN DEFAULT 0"))
+            db.session.execute(text("UPDATE task SET is_archived = 1 WHERE is_done = 1"))
+            db.session.execute(text("UPDATE task SET is_archived = 0 WHERE is_archived IS NULL"))
+            db.session.commit()
+        if "is_deleted" not in task_columns:
+            db.session.execute(text("ALTER TABLE task ADD COLUMN is_deleted BOOLEAN DEFAULT 0"))
+            db.session.execute(text("UPDATE task SET is_deleted = 0 WHERE is_deleted IS NULL"))
             db.session.commit()
         user_columns = {column["name"] for column in inspector.get_columns("user")}
         if "telegram_bot_token" not in user_columns:

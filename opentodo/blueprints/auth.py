@@ -10,6 +10,7 @@ bp = Blueprint("auth", __name__)
 
 @bp.route("/register", methods=["GET", "POST"])
 def register():
+    """Register a new user account or show the registration form."""
     if g.user is not None:
         return redirect(url_for("main.index"))
 
@@ -34,6 +35,7 @@ def register():
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
+    """Authenticate a user and start a new session."""
     if g.user is not None:
         return redirect(url_for("main.index"))
 
@@ -55,5 +57,6 @@ def login():
 @bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    """Clear the current session and redirect to login."""
     session.clear()
     return redirect(url_for("auth.login"))

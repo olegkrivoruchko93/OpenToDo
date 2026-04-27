@@ -13,6 +13,7 @@ bp = Blueprint("tags", __name__)
 @bp.route("/tags/add", methods=["POST"])
 @login_required
 def add_tag():
+    """Create a tag for the current user."""
     name = (request.form.get("name") or "").strip()
     color = parse_tag_color(request.form.get("color", ""))
     if not name:
@@ -31,6 +32,7 @@ def add_tag():
 @bp.route("/tags/edit/<int:tag_id>", methods=["POST"])
 @login_required
 def edit_tag(tag_id: int):
+    """Update a tag owned by the current user."""
     tag = Tag.query.filter_by(id=tag_id, user_id=g.user.id).first_or_404()
     name = (request.form.get("name") or "").strip()
     color = parse_tag_color(request.form.get("color", tag.color))
@@ -53,6 +55,7 @@ def edit_tag(tag_id: int):
 @bp.route("/tags/delete/<int:tag_id>", methods=["POST"])
 @login_required
 def delete_tag(tag_id: int):
+    """Delete a tag and detach it from tasks."""
     tag = Tag.query.filter_by(id=tag_id, user_id=g.user.id).first_or_404()
     tag.tasks.clear()
     db.session.delete(tag)

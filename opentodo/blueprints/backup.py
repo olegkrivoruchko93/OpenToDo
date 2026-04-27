@@ -15,6 +15,7 @@ bp = Blueprint("backup", __name__)
 @bp.route("/backup/export/json", methods=["GET", "POST"])
 @login_required
 def export_backup_json():
+    """Download the current user's backup as a JSON file."""
     payload = collect_backup_payload(g.user.id)
     file_name = f"opentodo-backup-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}.json"
     body = json.dumps(payload, ensure_ascii=False, indent=2)
@@ -26,6 +27,7 @@ def export_backup_json():
 @bp.route("/backup/export/csv", methods=["GET", "POST"])
 @login_required
 def export_backup_csv():
+    """Download the current user's backup as a ZIP archive of CSV files."""
     payload = collect_backup_payload(g.user.id)
     file_name = f"opentodo-backup-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}.zip"
     csv_zip = build_backup_csv_zip(payload)
@@ -37,6 +39,7 @@ def export_backup_csv():
 @bp.route("/backup/import/json", methods=["POST"])
 @login_required
 def import_backup_json():
+    """Import the current user's data from an uploaded JSON backup."""
     mode = (request.form.get("mode") or "merge").strip().lower()
     file = request.files.get("backup_file")
     if file is None or not file.filename:
@@ -60,6 +63,7 @@ def import_backup_json():
 @bp.route("/backup/import/csv", methods=["POST"])
 @login_required
 def import_backup_csv():
+    """Import the current user's data from an uploaded CSV ZIP backup."""
     mode = (request.form.get("mode") or "merge").strip().lower()
     file = request.files.get("backup_file")
     if file is None or not file.filename:
