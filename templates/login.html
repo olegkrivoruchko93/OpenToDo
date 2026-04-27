@@ -8,7 +8,8 @@
         (function () {
             var k = "opentodo-theme";
             var v = localStorage.getItem(k);
-            if (v !== "default" && v !== "warm" && v !== "dark") v = "default";
+            var themes = ["default", "warm", "dark", "ocean", "forest", "violet"];
+            if (themes.indexOf(v) === -1) v = "default";
             document.documentElement.setAttribute("data-theme", v);
         })();
     </script>
@@ -28,14 +29,14 @@
         {% endif %}
     {% endwith %}
 
-    <form class="auth-form" action="{{ url_for('login') }}" method="post">
+    <form class="auth-form" action="{{ url_for('auth.login') }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="text" name="username" placeholder="Логин" required>
         <input type="password" name="password" placeholder="Пароль" required>
         <button type="submit">Войти</button>
     </form>
 
-    <p class="auth-hint">Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a></p>
+    <p class="auth-hint">Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
 </main>
 </body>
 </html>

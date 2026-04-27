@@ -212,6 +212,171 @@ html[data-theme="dark"] {
     --checklist-add-hover: #8bb3ff;
 }
 
+html[data-theme="ocean"] {
+    --bg-app: #eaf6f8;
+    --bg-sidebar: #d7eef3;
+    --bg-main: #f3fbfc;
+    --bg-hover: #c8e6ed;
+    --bg-muted: #e3f3f6;
+    --border: #b8d7df;
+    --border-input: #a8cbd5;
+    --text-main: #18343d;
+    --text-muted: #54727b;
+    --text-strong: #0f2830;
+    --brand-text: #0f2830;
+    --text-project-link: #244852;
+    --accent: #0e7490;
+    --accent-hover: #155e75;
+    --accent-soft: rgba(14, 116, 144, 0.14);
+    --accent-glow: rgba(14, 116, 144, 0.24);
+    --danger: #be123c;
+    --bg-elevated: #ffffff;
+    --bg-input: #ffffff;
+    --surface-task: rgba(255, 255, 255, 0.9);
+    --surface-task-hover: #ffffff;
+    --shadow-task: rgba(15, 64, 76, 0.07);
+    --shadow-modal: rgba(15, 64, 76, 0.18);
+    --overlay-bg: rgba(15, 64, 76, 0.35);
+    --overlay-soft: rgba(15, 64, 76, 0.12);
+    --button-secondary-bg: #dff1f5;
+    --button-secondary-border: #b8d7df;
+    --button-secondary-text: #244852;
+    --button-secondary-hover: #cfe9ef;
+    --icon-btn-bg: #dff1f5;
+    --icon-btn-border: #b8d7df;
+    --icon-btn-text: #37616c;
+    --icon-btn-hover: #cfe9ef;
+    --danger-bg: #ffe4eb;
+    --danger-bg-hover: #ffd4df;
+    --danger-border: #f5b4c3;
+    --empty-border: #a8cbd5;
+    --task-title-color: #18343d;
+    --task-desc-color: #54727b;
+    --task-done-color: #78929a;
+    --task-border: #c6dfe6;
+    --date-badge-bg: #cffafe;
+    --date-badge-text: #155e75;
+    --project-badge-bg: #dff1f5;
+    --project-badge-text: #37616c;
+    --backup-heading: #18343d;
+    --backup-hint: #54727b;
+    --checklist-title: #66838b;
+    --checklist-muted: #78929a;
+    --checklist-item: #37616c;
+    --checklist-builder-bg: #f8fdfe;
+    --checklist-add-hover: #164e63;
+}
+
+html[data-theme="forest"] {
+    --bg-app: #eef5ed;
+    --bg-sidebar: #dfeede;
+    --bg-main: #f7fbf6;
+    --bg-hover: #d2e5d0;
+    --bg-muted: #e8f3e7;
+    --border: #bfd3bc;
+    --border-input: #aec8ab;
+    --text-main: #263827;
+    --text-muted: #657866;
+    --text-strong: #182a19;
+    --brand-text: #182a19;
+    --text-project-link: #344d35;
+    --accent: #2f7d46;
+    --accent-hover: #256337;
+    --accent-soft: rgba(47, 125, 70, 0.14);
+    --accent-glow: rgba(47, 125, 70, 0.22);
+    --danger: #b91c1c;
+    --bg-elevated: #ffffff;
+    --bg-input: #ffffff;
+    --surface-task: rgba(255, 255, 255, 0.9);
+    --surface-task-hover: #ffffff;
+    --shadow-task: rgba(34, 77, 38, 0.07);
+    --shadow-modal: rgba(34, 77, 38, 0.18);
+    --overlay-bg: rgba(31, 61, 34, 0.35);
+    --overlay-soft: rgba(31, 61, 34, 0.12);
+    --button-secondary-bg: #e3f0e1;
+    --button-secondary-border: #bfd3bc;
+    --button-secondary-text: #344d35;
+    --button-secondary-hover: #d6e8d4;
+    --icon-btn-bg: #e3f0e1;
+    --icon-btn-border: #bfd3bc;
+    --icon-btn-text: #4e664f;
+    --icon-btn-hover: #d6e8d4;
+    --danger-bg: #fce9e9;
+    --danger-bg-hover: #fad4d4;
+    --danger-border: #e8b4b4;
+    --empty-border: #aec8ab;
+    --task-title-color: #263827;
+    --task-desc-color: #657866;
+    --task-done-color: #819182;
+    --task-border: #ccddc9;
+    --date-badge-bg: #dcfce7;
+    --date-badge-text: #166534;
+    --project-badge-bg: #e3f0e1;
+    --project-badge-text: #4e664f;
+    --backup-heading: #263827;
+    --backup-hint: #657866;
+    --checklist-title: #748675;
+    --checklist-muted: #819182;
+    --checklist-item: #4e664f;
+    --checklist-builder-bg: #fbfefb;
+    --checklist-add-hover: #14532d;
+}
+
+html[data-theme="violet"] {
+    --bg-app: #f2effa;
+    --bg-sidebar: #e8e1f5;
+    --bg-main: #fbf9ff;
+    --bg-hover: #ddd3ee;
+    --bg-muted: #eee8f8;
+    --border: #cfc2e6;
+    --border-input: #c0b0dc;
+    --text-main: #342944;
+    --text-muted: #716582;
+    --text-strong: #251b33;
+    --brand-text: #251b33;
+    --text-project-link: #443657;
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --accent-soft: rgba(124, 58, 237, 0.14);
+    --accent-glow: rgba(124, 58, 237, 0.22);
+    --danger: #c026d3;
+    --bg-elevated: #ffffff;
+    --bg-input: #ffffff;
+    --surface-task: rgba(255, 255, 255, 0.9);
+    --surface-task-hover: #ffffff;
+    --shadow-task: rgba(68, 54, 87, 0.07);
+    --shadow-modal: rgba(68, 54, 87, 0.18);
+    --overlay-bg: rgba(54, 42, 72, 0.35);
+    --overlay-soft: rgba(54, 42, 72, 0.12);
+    --button-secondary-bg: #ece5f7;
+    --button-secondary-border: #cfc2e6;
+    --button-secondary-text: #443657;
+    --button-secondary-hover: #e2d8f1;
+    --icon-btn-bg: #ece5f7;
+    --icon-btn-border: #cfc2e6;
+    --icon-btn-text: #5b4c70;
+    --icon-btn-hover: #e2d8f1;
+    --danger-bg: #fae8ff;
+    --danger-bg-hover: #f5d0fe;
+    --danger-border: #e9b5f4;
+    --empty-border: #c0b0dc;
+    --task-title-color: #342944;
+    --task-desc-color: #716582;
+    --task-done-color: #8b809a;
+    --task-border: #d9cdeb;
+    --date-badge-bg: #ede9fe;
+    --date-badge-text: #5b21b6;
+    --project-badge-bg: #ece5f7;
+    --project-badge-text: #5b4c70;
+    --backup-heading: #342944;
+    --backup-hint: #716582;
+    --checklist-title: #80728f;
+    --checklist-muted: #8b809a;
+    --checklist-item: #5b4c70;
+    --checklist-builder-bg: #fdfbff;
+    --checklist-add-hover: #581c87;
+}
+
 body {
     margin: 0;
     font-family: "Segoe UI", Arial, sans-serif;
@@ -347,6 +512,18 @@ body {
     font-size: 12px;
 }
 
+.icon-btn.project-action-btn {
+    border: 0;
+    background: transparent;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.icon-btn.project-action-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    transform: translateY(-1px);
+}
+
 .workspace {
     flex: 1;
     min-width: 0;
@@ -426,7 +603,7 @@ body {
 .add-form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .project-form {
@@ -467,15 +644,15 @@ body {
 .form-field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
 }
 
 .form-field > span {
     color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 650;
-    letter-spacing: 0.35px;
-    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
 }
 
 .add-form input,
@@ -483,7 +660,7 @@ body {
 .add-form select,
 .auth-form select,
 .auth-form input {
-    padding: 10px 12px;
+    padding: 8px 12px;
     border: 1px solid var(--border-input);
     border-radius: 8px;
     background: var(--bg-input);
@@ -491,7 +668,7 @@ body {
 }
 
 .add-form textarea {
-    min-height: 84px;
+    min-height: 72px;
     resize: vertical;
     font-family: inherit;
 }
@@ -503,8 +680,9 @@ body {
 .modal-actions {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
-    margin-top: 2px;
+    margin-top: 4px;
 }
 
 button {
@@ -580,6 +758,23 @@ button.danger {
 
 .icon-btn:hover {
     background: var(--icon-btn-hover);
+}
+
+.task-item [data-task-toggle-form] .icon-btn {
+    min-width: 22px;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.task-item [data-task-toggle-form] .icon-btn:hover,
+.task-item.done [data-task-toggle-form] .icon-btn {
+    background: transparent;
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .task-content {
@@ -684,7 +879,7 @@ button.danger {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 16px;
     z-index: 30;
 }
 
@@ -699,12 +894,12 @@ button.danger {
 
 .modal-panel {
     width: 100%;
-    max-width: 560px;
-    max-height: calc(100dvh - 40px);
+    max-width: 540px;
+    max-height: calc(100dvh - 32px);
     overflow-y: auto;
     background: var(--bg-elevated);
     border-radius: 14px;
-    padding: 16px;
+    padding: 14px 16px 16px;
     border: 1px solid var(--border);
     box-shadow: 0 14px 40px var(--shadow-modal);
 }
@@ -717,12 +912,13 @@ button.danger {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .modal-head h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: 19px;
+    font-weight: 700;
 }
 
 .toast {
@@ -857,7 +1053,7 @@ button.danger {
 }
 
 button.theme-option {
-    flex: 1;
+    flex: 0 0 calc((100% - 16px) / 3);
     min-width: 72px;
     padding: 8px 10px;
     border-radius: 10px;
@@ -973,6 +1169,7 @@ button.sidebar-projects-add-btn,
     flex-shrink: 0;
     box-sizing: border-box;
     font-family: inherit;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 button.sidebar-projects-add-btn {
@@ -986,6 +1183,20 @@ button.sidebar-projects-add-btn {
 button.sidebar-projects-add-btn:hover,
 .sidebar-tool-icon-btn:hover {
     opacity: 0.82;
+}
+
+button.sidebar-projects-add-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+.sidebar-tool-icon-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    opacity: 1;
+    transform: translateY(-1px);
 }
 
 button.sidebar-projects-add-btn:focus,
@@ -1115,9 +1326,19 @@ button.sidebar-projects-add-btn:focus-visible,
 }
 
 .backup-form input[type="file"],
+.backup-form input[type="text"],
+.backup-form input[type="password"],
 .backup-form select {
     width: 100%;
     font-size: 12px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+    font-size: 13px;
 }
 
 .backup-form button {
@@ -1240,23 +1461,30 @@ button.danger:hover {
 }
 
 .checklist-builder {
-    border: 1px solid var(--checklist-builder-border);
-    border-radius: 10px;
-    padding: 10px;
-    background: var(--checklist-builder-bg);
+    border: 1px solid color-mix(in srgb, var(--checklist-builder-border) 72%, transparent);
+    border-radius: 11px;
+    padding: 9px;
+    background: color-mix(in srgb, var(--checklist-builder-bg) 78%, transparent);
 }
 
 .checklist-builder-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 7px;
+}
+
+.checklist-builder-head span {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .checklist-builder-items {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
 }
 
 .checklist-builder-row {
@@ -1265,37 +1493,57 @@ button.danger:hover {
     align-items: center;
 }
 
-.checklist-builder-row input {
+.checklist-builder-row input[type="text"] {
     flex: 1;
+    min-height: 36px;
+}
+
+.checklist-done-toggle {
+    flex: 0 0 auto;
+    width: 17px;
+    height: 17px;
+    accent-color: var(--accent);
+}
+
+.checklist-builder-row.done input[type="text"] {
+    color: var(--checklist-muted);
+    text-decoration: line-through;
 }
 
 .remove-checklist-item-btn {
     flex-shrink: 0;
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size: 12px;
 }
 
 .checklist-add-btn {
-    background: var(--accent);
-    color: var(--primary-on-accent);
-    border: 1px solid var(--accent);
-    border-radius: 9px;
-    padding: 7px 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
     font-weight: 600;
-    box-shadow: 0 4px 10px var(--accent-glow);
+    box-shadow: none;
 }
 
 .checklist-add-btn:hover {
-    background: var(--checklist-add-hover);
-    border-color: var(--checklist-add-hover);
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--primary-on-accent);
 }
 
 .attachments-builder {
-    border: 1px solid var(--checklist-builder-border);
+    border: 1px solid color-mix(in srgb, var(--checklist-builder-border) 72%, transparent);
     border-radius: 12px;
-    padding: 10px 12px;
-    background: var(--checklist-builder-bg);
+    padding: 9px 11px;
+    background: color-mix(in srgb, var(--checklist-builder-bg) 78%, transparent);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
 }
 
 .attachments-builder-head {
@@ -1323,11 +1571,11 @@ button.danger:hover {
 }
 
 .attachments-builder-head span {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--checklist-title);
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .attachments-builder-head small {
@@ -1396,6 +1644,43 @@ button.danger:hover {
 
 .attachment-empty {
     margin: 0;
+}
+
+.file-dropzone {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px dashed var(--border-input);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--bg-input) 72%, transparent);
+    cursor: pointer;
+}
+
+.file-dropzone:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.file-dropzone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.file-dropzone-input {
+    display: none;
+}
+
+.file-dropzone-title {
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.file-dropzone-note {
+    color: var(--text-muted);
+    font-size: 12px;
 }
 
 .attachment-delete-label {

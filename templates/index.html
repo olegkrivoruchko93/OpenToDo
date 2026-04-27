@@ -8,7 +8,8 @@
         (function () {
             var k = "opentodo-theme";
             var v = localStorage.getItem(k);
-            if (v !== "default" && v !== "warm" && v !== "dark") v = "default";
+            var themes = ["default", "warm", "dark", "ocean", "forest", "violet"];
+            if (themes.indexOf(v) === -1) v = "default";
             document.documentElement.setAttribute("data-theme", v);
         })();
     </script>
@@ -21,9 +22,9 @@
         <div class="brand">OpenToDo</div>
 
         <nav class="menu">
-            <a class="menu-item {% if current_view == 'inbox' %}active{% endif %}" href="{{ url_for('index', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('index') }}"><span>Входящие</span><small>{{ inbox_count }}</small></a>
-            <a class="menu-item {% if current_view == 'today' %}active{% endif %}" href="{{ url_for('index', view='today', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('index', view='today') }}"><span>Сегодня</span><small>{{ today_count }}</small></a>
-            <a class="menu-item {% if current_view == 'plans' %}active{% endif %}" href="{{ url_for('index', view='plans', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('index', view='plans') }}"><span>Планы</span><small>{{ plans_count }}</small></a>
+            <a class="menu-item {% if current_view == 'inbox' %}active{% endif %}" href="{{ url_for('main.index', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index') }}"><span>Входящие</span><small>{{ inbox_count }}</small></a>
+            <a class="menu-item {% if current_view == 'today' %}active{% endif %}" href="{{ url_for('main.index', view='today', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index', view='today') }}"><span>Сегодня</span><small>{{ today_count }}</small></a>
+            <a class="menu-item {% if current_view == 'plans' %}active{% endif %}" href="{{ url_for('main.index', view='plans', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index', view='plans') }}"><span>Планы</span><small>{{ plans_count }}</small></a>
         </nav>
 
         <section class="projects">
@@ -43,12 +44,12 @@
                 </summary>
                 <ul class="sidebar-projects-list">
                     <li>
-                        <a class="project-link {% if not selected_project_id %}active{% endif %}" href="{{ url_for('index', view=current_view, tag_id=selected_tag_id) if selected_tag_id else url_for('index', view=current_view) }}">Все проекты</a>
+                        <a class="project-link {% if not selected_project_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, tag_id=selected_tag_id) if selected_tag_id else url_for('main.index', view=current_view) }}">Все проекты</a>
                     </li>
                     {% for project in projects %}
                         <li>
                             <div class="project-row {% if selected_project_id == project.id %}active{% endif %}">
-                                <a class="project-link" href="{{ url_for('index', view=current_view, project_id=project.id, tag_id=selected_tag_id) if selected_tag_id else url_for('index', view=current_view, project_id=project.id) }}">{{ project_icon_map.get(project.icon, "📁") }} {{ project.name }}</a>
+                                <a class="project-link" href="{{ url_for('main.index', view=current_view, project_id=project.id, tag_id=selected_tag_id) if selected_tag_id else url_for('main.index', view=current_view, project_id=project.id) }}">{{ project_icon_map.get(project.icon, "📁") }} {{ project.name }}</a>
                                 <div class="project-actions">
                                     <button
                                         type="button"
@@ -81,12 +82,12 @@
             </summary>
             <ul class="sidebar-tags-list">
                 <li>
-                    <a class="project-link sidebar-tag-link {% if not selected_tag_id %}active{% endif %}" href="{{ url_for('index', view=current_view, project_id=selected_project_id) if selected_project_id else url_for('index', view=current_view) }}">Все метки</a>
+                    <a class="project-link sidebar-tag-link {% if not selected_tag_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id) if selected_project_id else url_for('main.index', view=current_view) }}">Все метки</a>
                 </li>
                 {% for tag in tags %}
                     <li>
                         <div class="project-row sidebar-tag-row {% if selected_tag_id == tag.id %}active{% endif %}">
-                            <a class="project-link sidebar-tag-link" href="{{ url_for('index', view=current_view, project_id=selected_project_id, tag_id=tag.id) if selected_project_id else url_for('index', view=current_view, tag_id=tag.id) }}">
+                            <a class="project-link sidebar-tag-link" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=tag.id) if selected_project_id else url_for('main.index', view=current_view, tag_id=tag.id) }}">
                                 <span class="tag-dot" style="background: {{ tag_color(tag.color) }}"></span>{{ tag.name }}
                             </a>
                             <div class="project-actions">
@@ -109,7 +110,7 @@
         <div class="sidebar-tools" role="toolbar" aria-label="Дополнительно">
             <a
                 class="sidebar-tool-icon-btn"
-                href="{{ url_for('index', view='trash', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('index', view='trash') }}"
+                href="{{ url_for('main.index', view='trash', project_id=selected_project_id, tag_id=selected_tag_id) if selected_project_id or selected_tag_id else url_for('main.index', view='trash') }}"
                 title="Корзина"
                 aria-label="Корзина, выполненные задачи"
             ><span aria-hidden="true">🗑</span></a>
@@ -132,7 +133,7 @@
         <header class="workspace-head">
             <h1>{{ page_title }}</h1>
             <div class="workspace-head-actions">
-                <form action="{{ url_for('logout') }}" method="post">
+                <form action="{{ url_for('auth.logout') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="button-secondary" type="submit">Выйти ({{ current_user.username }})</button>
                 </form>
@@ -152,16 +153,18 @@
         <ul class="task-list">
             {% for task in tasks %}
                 <li class="task-item {% if task.is_done %}done{% endif %}" data-task-id="{{ task.id }}">
-                    <form data-task-toggle-form action="{{ url_for('toggle_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post">
+                    <form data-task-toggle-form action="{{ url_for('tasks.toggle_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="view" value="{{ current_view }}">
                         <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
                         <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
-                        <button class="icon-btn" type="submit">{% if task.is_done %}✓{% else %}○{% endif %}</button>
+                        <button class="icon-btn" type="submit">{% if task.is_done %}✓{% endif %}</button>
                     </form>
                     <div class="task-content">
                         <span class="task-title">{{ task.title }}</span>
-                        {% if task.due_date %}
+                        {% if task.due_at %}
+                            <span class="date-badge">📅 {{ task.due_at.strftime("%d.%m.%Y %H:%M") }}</span>
+                        {% elif task.due_date %}
                             <span class="date-badge">📅 {{ task.due_date.strftime("%d.%m.%Y") }}</span>
                         {% endif %}
                         {% if task.project %}
@@ -182,7 +185,7 @@
                         <span class="task-attachment-indicator" title="Вложения: {{ task.attachments|length }}" aria-hidden="true">📎 {{ task.attachments|length }}</span>
                     {% endif %}
                     {% if current_view == 'trash' %}
-                        <form action="{{ url_for('delete_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" data-confirm="Удалить задачу безвозвратно?">
+                        <form action="{{ url_for('tasks.delete_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" data-confirm="Удалить задачу безвозвратно?">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <input type="hidden" name="view" value="{{ current_view }}">
                             <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
@@ -216,7 +219,7 @@
             <h2>Изменить задачу</h2>
             <button id="close-task-edit-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form id="task-edit-form" class="add-form" action="{{ url_for('edit_task', task_id=0, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" enctype="multipart/form-data">
+        <form id="task-edit-form" class="add-form" action="{{ url_for('tasks.edit_task', task_id=0, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="view" value="{{ current_view }}">
             <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
@@ -230,13 +233,13 @@
                 <textarea id="task-edit-description-input" name="description" placeholder="Описание задачи (необязательно)"></textarea>
             </label>
             <label class="form-field" for="task-edit-due-date-input">
-                <span>Дата</span>
-                <input id="task-edit-due-date-input" type="date" name="due_date" aria-label="Дедлайн задачи">
+                <span>Дата и время</span>
+                <input id="task-edit-due-date-input" type="datetime-local" name="due_at" aria-label="Дедлайн задачи">
             </label>
-            <div class="checklist-builder" style="display: none;">
+            <div class="checklist-builder">
                 <div class="checklist-builder-head">
                     <span>Чеклист</span>
-                    <button id="add-edit-checklist-item-btn" class="checklist-add-btn" type="button">+ Пункт</button>
+                    <button id="task-edit-add-checklist-item" class="checklist-add-btn" type="button">+ пункт</button>
                 </div>
                 <div id="task-edit-checklist-items" class="checklist-builder-items"></div>
             </div>
@@ -260,7 +263,11 @@
                     <small>до 5 файлов, до 10 MB каждый</small>
                 </summary>
                 <div id="task-edit-attachments" class="attachment-list"></div>
-                <input id="task-edit-new-attachments-input" type="file" name="attachments[]" multiple>
+                <label class="file-dropzone">
+                    <input id="task-edit-new-attachments-input" class="file-dropzone-input" type="file" name="attachments[]" multiple>
+                    <span class="file-dropzone-title">Выберите файлы или перетащите сюда</span>
+                    <span class="file-dropzone-note">до 5 файлов, до 10 MB каждый</span>
+                </label>
             </details>
             <div class="modal-actions">
                 <button id="task-edit-save-btn" type="button">Сохранить</button>
@@ -276,7 +283,7 @@
             <h2>Новая задача</h2>
             <button id="close-task-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form class="add-form" action="{{ url_for('add_task', view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" enctype="multipart/form-data">
+        <form class="add-form" action="{{ url_for('tasks.add_task', view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="view" value="{{ current_view }}">
             <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
@@ -289,13 +296,13 @@
                 <textarea id="task-description-input" name="description" placeholder="Описание задачи (необязательно)"></textarea>
             </label>
             <label class="form-field" for="task-due-date-input">
-                <span>Дата</span>
-                <input id="task-due-date-input" type="date" name="due_date" aria-label="Дедлайн задачи">
+                <span>Дата и время</span>
+                <input id="task-due-date-input" type="datetime-local" name="due_at" aria-label="Дедлайн задачи">
             </label>
-            <div id="task-checklist-builder" class="checklist-builder" style="display: none;">
+            <div id="task-checklist-builder" class="checklist-builder">
                 <div class="checklist-builder-head">
                     <span>Чеклист</span>
-                    <button id="add-checklist-item-btn" class="checklist-add-btn" type="button">+ Пункт</button>
+                    <button id="task-add-checklist-item" class="checklist-add-btn" type="button">+ пункт</button>
                 </div>
                 <div id="task-checklist-items" class="checklist-builder-items"></div>
             </div>
@@ -318,7 +325,11 @@
                     <span>Вложения</span>
                     <small>до 5 файлов, до 10 MB каждый</small>
                 </summary>
-                <input type="file" name="attachments[]" multiple>
+                <label class="file-dropzone">
+                    <input class="file-dropzone-input" type="file" name="attachments[]" multiple>
+                    <span class="file-dropzone-title">Выберите файлы или перетащите сюда</span>
+                    <span class="file-dropzone-note">до 5 файлов, до 10 MB каждый</span>
+                </label>
             </details>
             <div class="modal-actions">
                 <button type="submit">Создать</button>
@@ -341,9 +352,54 @@
                     <button type="button" class="theme-option" data-theme-value="default" aria-pressed="false">Светлая</button>
                     <button type="button" class="theme-option" data-theme-value="warm" aria-pressed="false">Тёплая</button>
                     <button type="button" class="theme-option" data-theme-value="dark" aria-pressed="false">Тёмная</button>
+                    <button type="button" class="theme-option" data-theme-value="ocean" aria-pressed="false">Океан</button>
+                    <button type="button" class="theme-option" data-theme-value="forest" aria-pressed="false">Лес</button>
+                    <button type="button" class="theme-option" data-theme-value="violet" aria-pressed="false">Фиолетовая</button>
                 </div>
             </div>
-            <p class="settings-modal-hint">Здесь будут параметры приложения. Сейчас доступно резервное копирование данных.</p>
+            <p class="settings-modal-hint">Здесь доступны резервное копирование и уведомления Telegram.</p>
+            <form class="backup-form" action="{{ url_for('main.update_telegram_settings') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="view" value="{{ current_view }}">
+                <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                <label class="backup-form-title" for="telegram-bot-token-input">Telegram bot token</label>
+                <input
+                    id="telegram-bot-token-input"
+                    type="password"
+                    name="telegram_bot_token"
+                    value="{{ current_user.telegram_bot_token or '' }}"
+                    placeholder="123456789:ABCDEF..."
+                    autocomplete="off"
+                >
+                <label class="backup-form-title" for="telegram-chat-id-input">Telegram chat id</label>
+                <input
+                    id="telegram-chat-id-input"
+                    type="text"
+                    name="telegram_chat_id"
+                    value="{{ current_user.telegram_chat_id or '' }}"
+                    placeholder="Например: 123456789"
+                >
+                <label class="backup-form-title" for="telegram-username-input">Telegram username</label>
+                <input
+                    id="telegram-username-input"
+                    type="text"
+                    name="telegram_username"
+                    value="{{ current_user.telegram_username or '' }}"
+                    placeholder="username без @"
+                >
+                <label class="checkbox-label">
+                    <input
+                        type="checkbox"
+                        name="telegram_notifications_enabled"
+                        value="1"
+                        {% if current_user.telegram_notifications_enabled %}checked{% endif %}
+                    >
+                    Включить уведомления о задачах
+                </label>
+                <small class="settings-modal-hint">Чтобы узнать chat id, напишите своему боту в Telegram и посмотрите update через Bot API.</small>
+                <button type="submit">Сохранить Telegram</button>
+            </form>
             <button type="button" class="button-secondary settings-backup-link-btn" id="settings-open-backup-btn">Резервное копирование</button>
         </div>
     </section>
@@ -359,7 +415,7 @@
             <div class="backup-section backup-section-export">
                 <h3 class="backup-section-heading">Экспорт</h3>
                 <p class="backup-section-hint">Скачайте данные в файл на устройство.</p>
-                <form class="backup-form" action="{{ url_for('export_backup_json') }}" method="post">
+                <form class="backup-form" action="{{ url_for('backup.export_backup_json') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
@@ -367,7 +423,7 @@
                     <label class="backup-form-title">Экспорт JSON</label>
                     <button type="submit">Скачать JSON</button>
                 </form>
-                <form class="backup-form" action="{{ url_for('export_backup_csv') }}" method="post">
+                <form class="backup-form" action="{{ url_for('backup.export_backup_csv') }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
@@ -379,7 +435,7 @@
             <div class="backup-section backup-section-import">
                 <h3 class="backup-section-heading">Импорт</h3>
                 <p class="backup-section-hint">Загрузите ранее сохранённый файл и выберите режим слияния.</p>
-                <form class="backup-form" action="{{ url_for('import_backup_json') }}" method="post" enctype="multipart/form-data">
+                <form class="backup-form" action="{{ url_for('backup.import_backup_json') }}" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
@@ -392,7 +448,7 @@
                     </select>
                     <button type="submit">Импорт JSON</button>
                 </form>
-                <form class="backup-form" action="{{ url_for('import_backup_csv') }}" method="post" enctype="multipart/form-data">
+                <form class="backup-form" action="{{ url_for('backup.import_backup_csv') }}" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="view" value="{{ current_view }}">
                     <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
@@ -416,7 +472,7 @@
             <h2>Новый проект</h2>
             <button id="close-project-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form class="project-form" action="{{ url_for('add_project') }}" method="post">
+        <form class="project-form" action="{{ url_for('projects.add_project') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input id="project-name-input" type="text" name="name" placeholder="Название проекта..." required>
             <select name="icon">
@@ -435,7 +491,7 @@
             <h2>Изменить проект</h2>
             <button id="close-project-edit-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form id="project-edit-form" class="project-form" action="{{ url_for('edit_project', project_id=0, view=current_view) }}" method="post">
+        <form id="project-edit-form" class="project-form" action="{{ url_for('projects.edit_project', project_id=0, view=current_view) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input id="project-edit-name-input" type="text" name="name" placeholder="Название проекта..." required>
             <select id="project-edit-icon-input" name="icon">
@@ -448,7 +504,7 @@
                 <button id="project-delete-btn" type="submit" class="danger" form="project-delete-form">Удалить проект</button>
             </div>
         </form>
-        <form id="project-delete-form" action="{{ url_for('delete_project', project_id=0, view=current_view, selected_project_id=selected_project_id) }}" method="post">
+        <form id="project-delete-form" action="{{ url_for('projects.delete_project', project_id=0, view=current_view, selected_project_id=selected_project_id) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         </form>
     </section>
@@ -460,7 +516,7 @@
             <h2>Новая метка</h2>
             <button id="close-tag-modal" class="icon-btn" type="button">✕</button>
         </div>
-        <form class="project-form" action="{{ url_for('add_tag') }}" method="post">
+        <form class="project-form" action="{{ url_for('tags.add_tag') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="view" value="{{ current_view }}">
             <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
@@ -570,7 +626,7 @@
     const tagEditNameInput = document.getElementById("tag-edit-name-input");
     const tagEditColorInput = document.getElementById("tag-edit-color-input");
     const taskChecklistItems = document.getElementById("task-checklist-items");
-    const addChecklistItemBtn = document.getElementById("add-checklist-item-btn");
+    const taskAddChecklistItemBtn = document.getElementById("task-add-checklist-item");
     const taskDueDateInput = document.getElementById("task-due-date-input");
     const taskTagsInput = document.getElementById("task-tags-input");
     const taskTagsSuggestions = document.getElementById("task-tags-suggestions");
@@ -584,7 +640,7 @@
     const taskEditTagsInput = document.getElementById("task-edit-tags-input");
     const taskEditTagsSuggestions = document.getElementById("task-edit-tags-suggestions");
     const taskEditChecklistItems = document.getElementById("task-edit-checklist-items");
-    const addEditChecklistItemBtn = document.getElementById("add-edit-checklist-item-btn");
+    const taskEditAddChecklistItemBtn = document.getElementById("task-edit-add-checklist-item");
     const taskEditAttachments = document.getElementById("task-edit-attachments");
     const taskEditNewAttachmentsInput = document.getElementById("task-edit-new-attachments-input");
     const taskItems = document.querySelectorAll(".task-item[data-task-id]");
@@ -597,18 +653,19 @@
     let toastTimeoutId;
 
     const THEME_STORAGE_KEY = "opentodo-theme";
+    const THEME_VALUES = ["default", "warm", "dark", "ocean", "forest", "violet"];
     const themeOptionButtons = document.querySelectorAll(".theme-option[data-theme-value]");
 
     function getStoredTheme() {
         const v = localStorage.getItem(THEME_STORAGE_KEY);
-        if (v === "default" || v === "warm" || v === "dark") {
+        if (THEME_VALUES.includes(v)) {
             return v;
         }
         return "default";
     }
 
     function applyTheme(theme) {
-        const t = theme === "warm" || theme === "dark" ? theme : "default";
+        const t = THEME_VALUES.includes(theme) ? theme : "default";
         document.documentElement.setAttribute("data-theme", t);
         localStorage.setItem(THEME_STORAGE_KEY, t);
         themeOptionButtons.forEach((btn) => {
@@ -735,7 +792,7 @@
                 } else {
                     taskItem.classList.remove("done");
                     if (toggleBtn) {
-                        toggleBtn.textContent = "○";
+                        toggleBtn.textContent = "";
                     }
                     if (isTrashView) {
                         taskItem.remove();
@@ -790,6 +847,9 @@
     }
 
     function openTaskModal() {
+        if (taskChecklistItems.childElementCount === 0) {
+            addChecklistInput();
+        }
         modalOverlay.classList.remove("hidden");
         syncModalOpenState();
         taskTitleInput.focus();
@@ -808,13 +868,29 @@
         input.name = "checklist_items[]";
         input.placeholder = "Пункт чеклиста";
         input.value = initialValue;
+        input.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter") {
+                return;
+            }
+            event.preventDefault();
+            if (!input.value.trim()) {
+                return;
+            }
+            addChecklistInput().focus();
+        });
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.className = "icon-btn remove-checklist-item-btn";
         removeBtn.textContent = "✕";
         row.append(input, removeBtn);
         taskChecklistItems.appendChild(row);
-        removeBtn.addEventListener("click", () => row.remove());
+        removeBtn.addEventListener("click", () => {
+            row.remove();
+            if (taskChecklistItems.childElementCount === 0) {
+                addChecklistInput().focus();
+            }
+        });
+        return input;
     }
 
     function addEditChecklistInput(itemId = "", itemTitle = "", isDone = false) {
@@ -828,18 +904,82 @@
         doneInput.type = "hidden";
         doneInput.name = "checklist_item_done[]";
         doneInput.value = isDone ? "1" : "0";
+        const doneCheckbox = document.createElement("input");
+        doneCheckbox.type = "checkbox";
+        doneCheckbox.className = "checklist-done-toggle";
+        doneCheckbox.checked = isDone;
+        doneCheckbox.setAttribute("aria-label", "Отметить пункт чеклиста выполненным");
+        row.classList.toggle("done", isDone);
+        doneCheckbox.addEventListener("change", () => {
+            doneInput.value = doneCheckbox.checked ? "1" : "0";
+            row.classList.toggle("done", doneCheckbox.checked);
+        });
         const titleInput = document.createElement("input");
         titleInput.type = "text";
         titleInput.name = "checklist_items[]";
         titleInput.placeholder = "Пункт чеклиста";
         titleInput.value = itemTitle;
+        titleInput.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter") {
+                return;
+            }
+            event.preventDefault();
+            if (!titleInput.value.trim()) {
+                return;
+            }
+            addEditChecklistInput("", "", false).focus();
+        });
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.className = "icon-btn remove-checklist-item-btn";
         removeBtn.textContent = "✕";
-        row.append(idInput, doneInput, titleInput, removeBtn);
+        row.append(idInput, doneInput, doneCheckbox, titleInput, removeBtn);
         taskEditChecklistItems.appendChild(row);
-        removeBtn.addEventListener("click", () => row.remove());
+        removeBtn.addEventListener("click", () => {
+            row.remove();
+            if (taskEditChecklistItems.childElementCount === 0) {
+                addEditChecklistInput("", "", false).focus();
+            }
+        });
+        return titleInput;
+    }
+
+    function attachFileDropzones() {
+        document.querySelectorAll(".file-dropzone").forEach((dropzone) => {
+            const input = dropzone.querySelector('input[type="file"]');
+            const title = dropzone.querySelector(".file-dropzone-title");
+            if (!input || !title) {
+                return;
+            }
+
+            const updateTitle = () => {
+                const fileCount = input.files ? input.files.length : 0;
+                title.textContent = fileCount > 0
+                    ? `Выбрано файлов: ${fileCount}`
+                    : "Выберите файлы или перетащите сюда";
+            };
+
+            input.addEventListener("change", updateTitle);
+
+            dropzone.addEventListener("dragover", (event) => {
+                event.preventDefault();
+                dropzone.classList.add("drag-over");
+            });
+
+            dropzone.addEventListener("dragleave", () => {
+                dropzone.classList.remove("drag-over");
+            });
+
+            dropzone.addEventListener("drop", (event) => {
+                event.preventDefault();
+                dropzone.classList.remove("drag-over");
+                if (!event.dataTransfer?.files.length) {
+                    return;
+                }
+                input.files = event.dataTransfer.files;
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            });
+        });
     }
 
     function parseTagInputState(input) {
@@ -977,7 +1117,7 @@
         taskEditForm.action = `/edit/${taskId}?view={{ current_view }}&project_id={{ selected_project_id if selected_project_id else '' }}&tag_id={{ selected_tag_id if selected_tag_id else '' }}`;
         taskEditTitleInput.value = taskData.title || "";
         taskEditDescriptionInput.value = taskData.description || "";
-        taskEditDueDateInput.value = taskData.due_date || "";
+        taskEditDueDateInput.value = taskData.due_at || "";
         taskEditProjectInput.value = taskData.project_id || "";
         taskEditTagsInput.value = taskData.tag_names || "";
         taskEditChecklistItems.innerHTML = "";
@@ -989,6 +1129,7 @@
         }
         renderTaskEditAttachments(taskData.attachments || []);
         taskEditNewAttachmentsInput.value = "";
+        taskEditNewAttachmentsInput.dispatchEvent(new Event("change", { bubbles: true }));
         taskEditModalOverlay.classList.remove("hidden");
         syncModalOpenState();
         taskEditTitleInput.focus();
@@ -1195,10 +1336,12 @@
     tagEditColorInput.addEventListener("input", () => syncColorInputPreview(tagEditColorInput));
     attachTagAutocomplete(taskTagsInput, taskTagsSuggestions);
     attachTagAutocomplete(taskEditTagsInput, taskEditTagsSuggestions);
+    attachFileDropzones();
 
     if (openTaskModalBtn) {
         openTaskModalBtn.addEventListener("click", openTaskModal);
     }
+    taskAddChecklistItemBtn.addEventListener("click", () => addChecklistInput().focus());
     closeTaskModalBtn.addEventListener("click", closeTaskModal);
     modalOverlay.addEventListener("click", (event) => {
         if (event.target === modalOverlay && !isMobileViewport()) {
@@ -1281,11 +1424,10 @@
         }
     });
 
-    addChecklistItemBtn.addEventListener("click", () => addChecklistInput());
-    addEditChecklistItemBtn.addEventListener("click", () => addEditChecklistInput("", "", false));
     taskEditForm.addEventListener("submit", (event) => {
         event.preventDefault();
     });
+    taskEditAddChecklistItemBtn.addEventListener("click", () => addEditChecklistInput("", "", false).focus());
     taskEditSaveBtn.addEventListener("click", async () => {
         taskEditSaveBtn.disabled = true;
         try {

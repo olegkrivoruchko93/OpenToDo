@@ -55,4 +55,7 @@ python app.py
 - `FLASK_DEBUG=1` — включение debug-режима;
 - `FLASK_TEMPLATES_AUTO_RELOAD=1` — автообновление шаблонов;
 - `SESSION_COOKIE_SECURE=1` — отправка cookie только по HTTPS;
-- `FLASK_RUN_HOST` — хост для запуска приложения.
+- `FLASK_RUN_HOST` — хост для запуска приложения;
+- `TELEGRAM_BOT_TOKEN` — необязательный fallback-токен Telegram-бота. Обычно токен задается в настройках приложения и хранится в базе;
+- `NOTIFICATIONS_ENABLED=0` — отключение фоновой отправки уведомлений;
+- `NOTIFICATIONS_POLL_INTERVAL_SECONDS` — интервал проверки задач, по умолчанию 60 секунд.
