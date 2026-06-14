@@ -6,19 +6,13 @@
 </head>
 <body class="auth-page">
 <div class="auth-layout">
-    <aside class="auth-brand-panel">
-        <div class="auth-brand-inner">
-            {% from "partials/_icons.html" import icon %}
-            <span class="auth-brand-logo">{{ icon('logo', '', 36) }}</span>
-            <h1 class="auth-brand-title">OpenToDo</h1>
-            <p class="auth-brand-tagline">Простой таск-менеджер без лишнего</p>
-        </div>
-    </aside>
     <main class="auth-form-panel">
         <div class="auth-container">
-            <h2 class="auth-form-title">Вход</h2>
-            <p class="auth-form-subtitle">Добро пожаловать обратно</p>
-
+            <div class="auth-brand-panel">
+                {% from "partials/_icons.html" import icon %}
+                <span class="auth-brand-logo">{{ icon('logo', '', 36) }}</span>
+                <h1 class="auth-brand-title">OpenToDo</h1>
+            </div>
             <form class="auth-form" action="{{ url_for('auth.login') }}" method="post">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <label class="form-field">

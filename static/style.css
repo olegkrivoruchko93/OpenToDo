@@ -1682,9 +1682,10 @@ body.app-page .toast {
 }
 
 .auth-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    min-height: 100vh;
+    display: flex;             /* Activates Flexbox */
+    justify-content: center;   /* Centers content horizontally */
+    align-items: center;       /* Centers content vertically */
+    min-height: 100vh;         /* Ensures the layout takes up the full viewport height */
 }
 
 .auth-brand-panel {
