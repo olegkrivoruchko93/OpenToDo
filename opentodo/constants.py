@@ -68,3 +68,18 @@ def normalize_task_recurrence(raw_recurrence: str | None) -> str | None:
     if recurrence in TASK_RECURRENCE_VALUES:
         return recurrence
     return None
+
+# --- Updated Theme Constants ---
+THEME_OPTIONS = [
+    ("light", "Светлый"),   # 1. Default theme identifier
+    ("dark", "Темный"),     # 2. Existing dark theme identifier
+    ("midnight", "Полуночный"), # 3. Added: Deep blue/Midnight feel
+    ("forest", "Лесной"),   # 4. Added: Earthy green/Forest feel
+    ("peach", "Персиковый"),  # 5. Added: Warm peach/Soft coral feel
+    ("sepia", "Сепия"),      # 6. New theme: Retro, warm brown tones
+    ("ocean", "Океан"),     # 7. New theme: Cool blue/Aqua nautical feel
+    ("neon", "Неон")         # 8. New theme: Vibrant cyberpunk glow
+]
+THEME_MAP = {key.lower(): label for key, label in THEME_OPTIONS}
+DEFAULT_THEME = "light"
+

@@ -1,0 +1,65 @@
+{% from "partials/_icons.html" import icon %}
+<div id="backup-modal-overlay" class="modal-overlay hidden">
+    <section class="modal-panel">
+        <div class="modal-head">
+            <h2>Резервное копирование</h2>
+            <button id="close-backup-modal" class="icon-btn" type="button" aria-label="Закрыть">{{ icon('close', '', 16) }}</button>
+        </div>
+        <div class="backup-modal-body">
+            <div class="backup-section backup-section-export">
+                <h3 class="backup-section-heading">Экспорт</h3>
+                <p class="backup-section-hint">Скачайте данные в файл на устройство.</p>
+                <form class="backup-form" action="{{ url_for('backup.export_backup_json') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="view" value="{{ current_view }}">
+                    <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                    <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <label class="backup-form-title">Экспорт JSON</label>
+                    <button type="submit">Скачать JSON</button>
+                </form>
+                <form class="backup-form" action="{{ url_for('backup.export_backup_csv') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="view" value="{{ current_view }}">
+                    <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                    <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <label class="backup-form-title">Экспорт CSV (ZIP)</label>
+                    <button type="submit">Скачать ZIP</button>
+                </form>
+            </div>
+            <div class="backup-section backup-section-import">
+                <h3 class="backup-section-heading">Импорт</h3>
+                <p class="backup-section-hint">Загрузите ранее сохранённый файл и выберите режим слияния.</p>
+                <form class="backup-form" action="{{ url_for('backup.import_backup_json') }}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="view" value="{{ current_view }}">
+                    <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                    <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <label class="backup-form-title">Импорт JSON</label>
+                    <input type="file" name="backup_file" accept=".json,application/json" required>
+                    <select name="mode">
+                        <option value="merge">Merge (добавить)</option>
+                        <option value="replace">Replace (заменить)</option>
+                    </select>
+                    <button type="submit">Импорт JSON</button>
+                </form>
+                <form class="backup-form" action="{{ url_for('backup.import_backup_csv') }}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="view" value="{{ current_view }}">
+                    <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                    <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <input type="hidden" name="q" value="{{ search_query }}">
+                    <label class="backup-form-title">Импорт CSV (ZIP)</label>
+                    <input type="file" name="backup_file" accept=".zip,application/zip" required>
+                    <select name="mode">
+                        <option value="merge">Merge (добавить)</option>
+                        <option value="replace">Replace (заменить)</option>
+                    </select>
+                    <button type="submit">Импорт CSV</button>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,20 @@
+{% from "partials/_icons.html" import icon %}
+<div id="tag-modal-overlay" class="modal-overlay hidden">
+    <section class="modal-panel modal-panel-compact">
+        <div class="modal-head">
+            <h2>Новая метка</h2>
+            <button id="close-tag-modal" class="icon-btn" type="button" aria-label="Закрыть">{{ icon('close', '', 16) }}</button>
+        </div>
+        <form class="project-form" action="{{ url_for('tags.add_tag') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
+            <input id="tag-name-input" type="text" name="name" placeholder="Название метки..." required maxlength="64">
+            <label for="tag-color-input" class="theme-picker-label">Цвет метки</label>
+            <input id="tag-color-input" type="color" name="color" value="#5b7cfa">
+            <button type="submit">Создать</button>
+        </form>
+    </section>
+</div>

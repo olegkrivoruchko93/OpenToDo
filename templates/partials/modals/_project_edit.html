@@ -1,0 +1,33 @@
+{% from "partials/_icons.html" import icon %}
+<div id="project-edit-modal-overlay" class="modal-overlay hidden">
+    <section class="modal-panel modal-panel-compact">
+        <div class="modal-head">
+            <h2>Изменить проект</h2>
+            <button id="close-project-edit-modal" class="icon-btn" type="button" aria-label="Закрыть">{{ icon('close', '', 16) }}</button>
+        </div>
+        <form id="project-edit-form" class="project-form" action="{{ url_for('projects.edit_project', project_id=0, view=current_view, q=search_arg) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
+            <input id="project-edit-name-input" type="text" name="name" placeholder="Название проекта..." required>
+            <select id="project-edit-icon-input" name="icon">
+                {% for icon_key, icon_label in project_icon_options %}
+                    <option value="{{ icon_key }}">{{ icon_label }}</option>
+                {% endfor %}
+            </select>
+            <div class="actions">
+                <button type="submit">Сохранить</button>
+                <button id="project-delete-btn" type="submit" class="danger" form="project-delete-form">Удалить</button>
+            </div>
+        </form>
+        <form id="project-delete-form" action="{{ url_for('projects.delete_project', project_id=0, view=current_view, selected_project_id=selected_project_id, q=search_arg) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
+        </form>
+    </section>
+</div>

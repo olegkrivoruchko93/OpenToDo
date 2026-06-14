@@ -1,0 +1,30 @@
+{% from "partials/_icons.html" import icon %}
+<div id="tag-edit-modal-overlay" class="modal-overlay hidden">
+    <section class="modal-panel modal-panel-compact">
+        <div class="modal-head">
+            <h2>Изменить метку</h2>
+            <button id="close-tag-edit-modal" class="icon-btn" type="button" aria-label="Закрыть">{{ icon('close', '', 16) }}</button>
+        </div>
+        <form id="tag-edit-form" class="project-form" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
+            <input id="tag-edit-name-input" type="text" name="name" placeholder="Название метки..." required maxlength="64">
+            <label for="tag-edit-color-input" class="theme-picker-label">Цвет метки</label>
+            <input id="tag-edit-color-input" type="color" name="color" value="#5b7cfa">
+            <div class="actions">
+                <button type="submit">Сохранить</button>
+                <button id="tag-delete-btn" type="submit" class="danger" form="tag-delete-form">Удалить</button>
+            </div>
+        </form>
+        <form id="tag-delete-form" action="{{ url_for('tags.delete_tag', tag_id=0) }}" method="post" data-confirm="Удалить метку?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="view" value="{{ current_view }}">
+            <input type="hidden" name="filter_project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+            <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+            <input type="hidden" name="q" value="{{ search_query }}">
+        </form>
+    </section>
+</div>

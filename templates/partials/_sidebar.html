@@ -1,0 +1,148 @@
+{% from "partials/_icons.html" import icon %}
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark">{{ icon('logo', 'brand-logo', 22) }}</span>
+            <span class="brand-text">
+                <span class="brand-name">OpenToDo</span>
+                <span class="brand-tagline">Планируйте спокойно</span>
+            </span>
+        </div>
+
+        <nav class="menu">
+            <a class="menu-item {% if current_view == 'inbox' %}active{% endif %}" href="{{ url_for('main.index', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}">
+                <span class="menu-item-label">{{ icon('inbox', 'menu-item-icon', 18) }}<span>Входящие</span></span>
+                <span class="menu-count">{{ inbox_count }}</span>
+            </a>
+            <a class="menu-item {% if current_view == 'today' %}active{% endif %}" href="{{ url_for('main.index', view='today', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}">
+                <span class="menu-item-label">{{ icon('calendar', 'menu-item-icon', 18) }}<span>Сегодня</span></span>
+                <span class="menu-count">{{ today_count }}</span>
+            </a>
+            <a class="menu-item {% if current_view == 'plans' %}active{% endif %}" href="{{ url_for('main.index', view='plans', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}">
+                <span class="menu-item-label"><span class="menu-item-icon menu-item-icon-plans" aria-hidden="true">◷</span><span>Планы</span></span>
+                <span class="menu-count">{{ plans_count }}</span>
+            </a>
+        </nav>
+
+        <section class="projects">
+            <details class="sidebar-projects-collapsible" open>
+                <summary class="sidebar-projects-summary">
+                    <span class="sidebar-projects-heading">Мои проекты</span>
+                    <span class="sidebar-projects-summary-actions">
+                        <button
+                            id="open-project-modal"
+                            class="sidebar-projects-add-btn"
+                            type="button"
+                            title="Новый проект"
+                            aria-label="Новый проект"
+                        >{{ icon('plus', '', 16) }}</button>
+                        <span class="sidebar-projects-chevron" aria-hidden="true"></span>
+                    </span>
+                </summary>
+                <ul class="sidebar-projects-list">
+                    <li>
+                        <a class="project-link sidebar-project-link {% if not selected_project_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, tag_id=selected_tag_id, q=search_arg) }}">
+                            <span class="sidebar-project-icon" aria-hidden="true">{{ icon('folder', '', 16) }}</span>
+                            <span class="sidebar-project-name">Все проекты</span>
+                        </a>
+                    </li>
+                    {% for project in projects %}
+                        <li>
+                            <div class="project-row sidebar-project-row {% if selected_project_id == project.id %}active{% endif %}">
+                                <a class="project-link sidebar-project-link" href="{{ url_for('main.index', view=current_view, project_id=project.id, tag_id=selected_tag_id, q=search_arg) }}" title="{{ project.name }}">
+                                    <span class="sidebar-project-icon sidebar-project-icon-emoji" aria-hidden="true">{{ project_icon_map.get(project.icon, "📁") }}</span>
+                                    <span class="sidebar-project-name">{{ project.name }}</span>
+                                </a>
+                                <div class="project-actions">
+                                    <button
+                                        type="button"
+                                        class="icon-btn project-action-btn"
+                                        data-project-id="{{ project.id }}"
+                                        data-project-name="{{ project.name }}"
+                                        data-project-icon="{{ project.icon }}"
+                                        title="Изменить проект"
+                                        aria-label="Изменить проект"
+                                    >{{ icon('edit', '', 14) }}</button>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </details>
+        </section>
+
+        <details class="sidebar-tags-collapsible" {% if selected_tag_id %}open{% endif %}>
+            <summary class="sidebar-tags-summary">
+                <span class="sidebar-tags-heading">Метки</span>
+                <span class="sidebar-projects-summary-actions">
+                        <button
+                            id="open-tag-modal"
+                            class="sidebar-projects-add-btn"
+                            type="button"
+                            title="Новая метка"
+                            aria-label="Новая метка"
+                >{{ icon('plus', '', 16) }}</button>
+                <span class="sidebar-tags-chevron" aria-hidden="true"></span>
+                </span>
+            </summary>
+            <ul class="sidebar-tags-list">
+                <li>
+                    <a class="project-link sidebar-tag-link {% if not selected_tag_id %}active{% endif %}" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, q=search_arg) }}">Все метки</a>
+                </li>
+                {% for tag in tags %}
+                    <li>
+                        <div class="project-row sidebar-tag-row {% if selected_tag_id == tag.id %}active{% endif %}">
+                            <a class="project-link sidebar-tag-link" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=tag.id, q=search_arg) }}">
+                                <span class="tag-dot" style="background: {{ tag_color(tag.color) }}"></span>{{ tag.name }}
+                            </a>
+                            <div class="project-actions">
+                                <button
+                                    type="button"
+                                    class="icon-btn project-action-btn"
+                                    data-tag-id="{{ tag.id }}"
+                                    data-tag-name="{{ tag.name | e }}"
+                                    data-tag-color="{{ tag_color(tag.color) }}"
+                                    title="Изменить метку"
+                                    aria-label="Изменить метку"
+                                >{{ icon('edit', '', 14) }}</button>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </details>
+
+        <div class="sidebar-tools" role="toolbar" aria-label="Дополнительно">
+            <a
+                class="sidebar-tool-icon-btn {% if current_view == 'archive' %}active{% endif %}"
+                href="{{ url_for('main.index', view='archive', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}"
+                title="Архив"
+                aria-label="Архив, выполненные задачи"
+            ><svg class="sidebar-tool-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M3.5 8.5h4v4"></path>
+                <path d="M7.15 8.9A7 7 0 1 1 5 14"></path>
+                <path d="M12 7.5v5l3.25 2"></path>
+            </svg></a>
+            <a
+                class="sidebar-tool-icon-btn {% if current_view == 'trash' %}active{% endif %}"
+                href="{{ url_for('main.index', view='trash', project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}"
+                title="Корзина"
+                aria-label="Корзина, удаленные задачи"
+            >{{ icon('trash', 'sidebar-tool-icon', 20) }}</a>
+            <button type="button" class="sidebar-tool-icon-btn" id="open-settings-modal" title="Настройки" aria-label="Настройки">
+                {{ icon('settings', 'sidebar-tool-icon', 20) }}
+            </button>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <span class="sidebar-user-avatar" aria-hidden="true">{{ current_user.username[:1]|upper }}</span>
+                <span class="sidebar-user-name">{{ current_user.username }}</span>
+            </div>
+            <form class="sidebar-logout-form" action="{{ url_for('auth.logout') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="sidebar-logout-btn" type="submit" title="Выйти" aria-label="Выйти">
+                    {{ icon('logout', '', 18) }}
+                </button>
+            </form>
+        </div>
+    </aside>

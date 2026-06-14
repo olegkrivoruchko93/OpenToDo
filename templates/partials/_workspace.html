@@ -1,0 +1,113 @@
+{% from "partials/_icons.html" import icon %}
+    <main class="workspace">
+        <header class="workspace-head">
+            <div class="workspace-head-main">
+                <h1>{{ page_title }}</h1>
+                {% set n = tasks|length %}
+                <p class="workspace-subtitle">
+                    {% if n == 0 %}Нет задач
+                    {% elif n % 10 == 1 and n % 100 != 11 %}{{ n }} задача
+                    {% elif n % 10 in [2, 3, 4] and n % 100 not in [12, 13, 14] %}{{ n }} задачи
+                    {% else %}{{ n }} задач{% endif %}
+                </p>
+            </div>
+            <div class="workspace-head-actions">
+                <form class="task-search-form" action="{{ url_for('main.index') }}" method="get" role="search">
+                    <input type="hidden" name="view" value="{{ current_view }}">
+                    <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                    <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                    <label class="task-search-field">
+                        <span class="visually-hidden">Поиск задач</span>
+                        {{ icon('search', 'task-search-icon', 18) }}
+                        <input class="task-search-input" type="search" name="q" value="{{ search_query }}" placeholder="Поиск задач..." aria-label="Поиск задач">
+                    </label>
+                    {% if search_query %}
+                        <a class="button-link button-secondary task-search-reset" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=selected_tag_id) }}">Сбросить</a>
+                    {% endif %}
+                </form>
+                {% if current_view not in ['archive', 'trash'] %}
+                <button id="open-task-modal-header" class="workspace-create-btn" type="button">
+                    {{ icon('plus', '', 16) }}
+                    <span>Задача</span>
+                </button>
+                {% endif %}
+            </div>
+        </header>
+
+        <ul class="task-list">
+            {% for task in tasks %}
+                <li class="task-item task-priority-{{ task.priority or 'medium' }} {% if task.is_done %}done{% endif %}" data-task-id="{{ task.id }}">
+                    <form data-task-toggle-form action="{{ url_for('tasks.toggle_task', task_id=task.id, view=current_view, project_id=selected_project_id, tag_id=selected_tag_id, q=search_arg) }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="view" value="{{ current_view }}">
+                        <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                        <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                        <input type="hidden" name="q" value="{{ search_query }}">
+                        <button class="task-check-btn" type="submit" aria-label="{% if task.is_done %}Снять отметку{% else %}Отметить выполненной{% endif %}">
+                            {% if task.is_done %}{{ icon('check', '', 12) }}{% endif %}
+                        </button>
+                    </form>
+                    <div class="task-body">
+                        <div class="task-row-primary">
+                            <span class="task-title">{{ task.title }}</span>
+                            <div class="task-indicators">
+                                {% if task.description and task.description.strip() %}
+                                    <span class="task-meta-icon" title="Есть описание">{{ icon('file', '', 14) }}</span>
+                                {% endif %}
+                                {% if task.checklist_items %}
+                                    <span class="task-meta-icon" title="Чек-лист: {{ task.checklist_items|length }}">{{ icon('checklist', '', 14) }}<span class="task-meta-count">{{ task.checklist_items|length }}</span></span>
+                                {% endif %}
+                                {% if task.attachments %}
+                                    <span class="task-meta-icon" title="Вложения: {{ task.attachments|length }}">{{ icon('paperclip', '', 14) }}<span class="task-meta-count">{{ task.attachments|length }}</span></span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if task.due_at or task.due_date or task_payloads[task.id].recurrence or task.project or task.tags %}
+                        <div class="task-row-meta">
+                            {% if task.due_at %}
+                                <span class="date-badge">{{ icon('calendar', 'badge-icon', 12) }} {{ task.due_at.strftime("%d.%m.%Y %H:%M") }}</span>
+                            {% elif task.due_date %}
+                                <span class="date-badge">{{ icon('calendar', 'badge-icon', 12) }} {{ task.due_date.strftime("%d.%m.%Y") }}</span>
+                            {% endif %}
+                            {% if task_payloads[task.id].recurrence %}
+                                <span class="recurrence-badge">↻ {{ task_payloads[task.id].recurrence_label }}</span>
+                            {% endif %}
+                            {% if task.project %}
+                                <a class="project-badge" href="{{ url_for('main.index', view=current_view, project_id=task.project.id, tag_id=selected_tag_id, q=search_arg) }}">{{ project_icon_map.get(task.project.icon, "📁") }} {{ task.project.name }}</a>
+                            {% endif %}
+                            {% if task.tags %}
+                                {% for tag in task.tags %}
+                                    <a class="task-tag" href="{{ url_for('main.index', view=current_view, project_id=selected_project_id, tag_id=tag.id, q=search_arg) }}" style="background: {{ tag_color(tag.color) }}">{{ tag.name }}</a>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </li>
+            {% else %}
+                <li class="empty-state">
+                    <div class="empty-state-icon" aria-hidden="true">{{ icon('inbox', '', 40) }}</div>
+                    {% if current_view == 'trash' %}
+                        <h3>В корзине пусто</h3>
+                        <p>Удаленные задачи появляются здесь перед окончательным удалением.</p>
+                    {% elif current_view == 'archive' %}
+                        <h3>В архиве пусто</h3>
+                        <p>Выполненные задачи появляются здесь после отметки «готово».</p>
+                    {% else %}
+                        {% if search_query %}
+                            <h3>Ничего не найдено</h3>
+                            <p>Попробуйте изменить запрос или сбросить поиск.</p>
+                        {% else %}
+                            <h3>Тут пока ничего нет</h3>
+                            <p>Начните планирование — создайте первую задачу.</p>
+                            <button id="open-task-modal-empty" class="empty-state-cta" type="button">{{ icon('plus', '', 16) }} Создать задачу</button>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if current_view not in ['archive', 'trash'] %}
+        <button id="open-task-modal" class="create-task-btn" type="button">{{ icon('plus', '', 18) }} Новая задача</button>
+        {% endif %}
+    </main>

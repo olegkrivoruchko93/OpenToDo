@@ -1,0 +1,5 @@
+{% for task in tasks %}
+    <script id="task-json-{{ task.id }}" type="application/json">
+        {{ task_payloads[task.id]|tojson }}
+    </script>
+{% endfor %}

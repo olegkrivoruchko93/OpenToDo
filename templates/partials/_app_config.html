@@ -1,0 +1,13 @@
+<script>
+  window.APP_CONFIG = {
+    csrfToken: {{ csrf_token()|tojson }},
+    flashMessages: {{ get_flashed_messages()|tojson }},
+    searchQuery: {{ search_query|tojson }},
+    indexUrl: {{ url_for('main.index')|tojson }},
+    currentView: {{ current_view|tojson }},
+    currentProjectId: {{ (selected_project_id or '')|tojson }},
+    currentTagId: {{ (selected_tag_id or '')|tojson }},
+    tagSuggestionNames: {{ tag_suggestion_names|tojson }},
+    tagSuggestionItems: {{ tag_suggestion_items|tojson }}
+  };
+</script>

@@ -1,33 +1,41 @@
 <!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход | OpenToDo</title>
-    <script>
-        (function () {
-            var k = "opentodo-theme";
-            var v = localStorage.getItem(k);
-            var themes = ["default", "warm", "dark", "ocean", "forest", "violet"];
-            if (themes.indexOf(v) === -1) v = "default";
-            document.documentElement.setAttribute("data-theme", v);
-        })();
-    </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% set auth_title = "Вход" %}
+{% include "partials/_auth_head.html" %}
 </head>
-<body>
-<main class="container auth-container">
-    <h1>Вход в OpenToDo</h1>
+<body class="auth-page">
+<div class="auth-layout">
+    <aside class="auth-brand-panel">
+        <div class="auth-brand-inner">
+            {% from "partials/_icons.html" import icon %}
+            <span class="auth-brand-logo">{{ icon('logo', '', 36) }}</span>
+            <h1 class="auth-brand-title">OpenToDo</h1>
+            <p class="auth-brand-tagline">Простой таск-менеджер без лишнего</p>
+        </div>
+    </aside>
+    <main class="auth-form-panel">
+        <div class="auth-container">
+            <h2 class="auth-form-title">Вход</h2>
+            <p class="auth-form-subtitle">Добро пожаловать обратно</p>
 
-    <form class="auth-form" action="{{ url_for('auth.login') }}" method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="text" name="username" placeholder="Логин" required>
-        <input type="password" name="password" placeholder="Пароль" required>
-        <button type="submit">Войти</button>
-    </form>
+            <form class="auth-form" action="{{ url_for('auth.login') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label class="form-field">
+                    <span>Логин</span>
+                    <input type="text" name="username" placeholder="Ваш логин" required autocomplete="username">
+                </label>
+                <label class="form-field">
+                    <span>Пароль</span>
+                    <input type="password" name="password" placeholder="Ваш пароль" required autocomplete="current-password">
+                </label>
+                <button type="submit">Войти</button>
+            </form>
 
-    <p class="auth-hint">Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
-</main>
+            <p class="auth-hint">Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
+        </div>
+    </main>
+</div>
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <script>
     const FLASH_MESSAGES = {{ get_flashed_messages()|tojson }};

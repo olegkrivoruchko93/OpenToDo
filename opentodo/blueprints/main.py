@@ -86,6 +86,20 @@ def index():
     today_count = active_task_query.filter(Task.due_at.isnot(None), Task.due_at <= today_end).count()
     plans_count = active_task_query.filter(Task.due_at.isnot(None), Task.due_at > today_end).count()
     archive_count = base_task_query.filter(Task.is_archived.is_(True), Task.is_deleted.is_(False)).count()
+
+    theme_themes = ["default", "warm", "dark", "ocean", "forest", "violet", "autumn", "sky", "gravel"]
+    theme_mapping = {
+        "default": "Светлая",
+        "warm": "Тёплая",
+        "dark": "Тёмная",
+        "ocean": "Океан",
+        "forest": "Лес",
+        "violet": "Фиолетовая",
+        "autumn": "Осенняя",  # New
+        "sky": "Небесная",   # New
+        "gravel": "Гравийная", # New
+    }
+
     page_title = "Входящие"
     if current_view == "today":
         page_title = "Сегодня"
@@ -120,6 +134,8 @@ def index():
         today_count=today_count,
         plans_count=plans_count,
         archive_count=archive_count,
+        theme_themes=theme_themes,
+        theme_mapping=theme_mapping
     )
 
 

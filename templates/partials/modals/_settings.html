@@ -1,0 +1,74 @@
+{% from "partials/_icons.html" import icon %}
+<div id="settings-modal-overlay" class="modal-overlay hidden">
+    <section class="modal-panel modal-panel-compact">
+        <div class="modal-head">
+            <h2>Настройки</h2>
+            <button id="close-settings-modal" class="icon-btn" type="button" aria-label="Закрыть">{{ icon('close', '', 16) }}</button>
+        </div>
+        <div class="settings-modal-body">
+            <div class="theme-picker" role="group" aria-labelledby="theme-picker-label">
+                <span id="theme-picker-label" class="theme-picker-label">Цветовая схема</span>
+                <div class="theme-picker-options">
+                    {% for theme_value in theme_themes %}
+                    {% set display_name = theme_mapping[theme_value] %}
+                    <button
+                        type="button"
+                        class="theme-option theme-swatch"
+                        data-theme-value="{{ theme_value }}"
+                        title="{{ display_name }}"
+                        aria-pressed="false"
+                    >
+                        <span class="theme-swatch-preview" aria-hidden="true"></span>
+                        <span class="theme-swatch-label">{{ display_name }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            <p class="settings-modal-hint">Здесь доступны резервное копирование и уведомления Telegram.</p>
+            <form class="backup-form" action="{{ url_for('main.update_telegram_settings') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="view" value="{{ current_view }}">
+                <input type="hidden" name="project_id" value="{{ selected_project_id if selected_project_id else '' }}">
+                <input type="hidden" name="tag_id" value="{{ selected_tag_id if selected_tag_id else '' }}">
+                <input type="hidden" name="q" value="{{ search_query }}">
+                <label class="backup-form-title" for="telegram-bot-token-input">Telegram bot token</label>
+                <input
+                    id="telegram-bot-token-input"
+                    type="password"
+                    name="telegram_bot_token"
+                    value="{{ current_user.telegram_bot_token or '' }}"
+                    placeholder="123456789:ABCDEF..."
+                    autocomplete="off"
+                >
+                <label class="backup-form-title" for="telegram-chat-id-input">Telegram chat id</label>
+                <input
+                    id="telegram-chat-id-input"
+                    type="text"
+                    name="telegram_chat_id"
+                    value="{{ current_user.telegram_chat_id or '' }}"
+                    placeholder="Например: 123456789"
+                >
+                <label class="backup-form-title" for="telegram-username-input">Telegram username</label>
+                <input
+                    id="telegram-username-input"
+                    type="text"
+                    name="telegram_username"
+                    value="{{ current_user.telegram_username or '' }}"
+                    placeholder="username без @"
+                >
+                <label class="checkbox-label">
+                    <input
+                        type="checkbox"
+                        name="telegram_notifications_enabled"
+                        value="1"
+                        {% if current_user.telegram_notifications_enabled %}checked{% endif %}
+                    >
+                    Включить уведомления о задачах
+                </label>
+                <small class="settings-modal-hint">Чтобы узнать chat id, напишите своему боту в Telegram и посмотрите update через Bot API.</small>
+                <button type="submit">Сохранить Telegram</button>
+            </form>
+            <button type="button" class="button-secondary settings-backup-link-btn" id="settings-open-backup-btn">Резервное копирование</button>
+        </div>
+    </section>
+</div>
