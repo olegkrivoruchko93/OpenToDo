@@ -1,68 +1,13 @@
-/* =============================== */
-/* 1. GLOBAL STYLES / RESETS       */
-/* =============================== */
+/* Light background color for the whole page */
+/* Sets a clean default font */
 body {
-    margin: 0; /* Removes default body margin */
-    padding-top: 0;
-    padding-bottom: 0;
-    font-family: Arial, sans-serif; /* Sets a clean default font */
-    background-color: #f8f9fa; /* Light background color for the whole page */
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
 }
 
-/* Basic styling for links inside the body */
-a {
-    text-decoration: none; /* Removes underline from links */
-    color: #007bff; /* Standard blue link color */
-}
-
-
-/* =============================== */
-/* 2. MAIN CONTENT AREA (#content)*/
-/* =============================== */
-#content {
-    /* Defines the maximum width the content can occupy (e.g., 1200px) */
-    max-width: 1100px;
-    /* Centers the container horizontally on large screens */
-    margin: 0 auto; 
-    padding: 20px; /* Adds breathing room inside the main content box */
-    background-color: #ffffff; /* Gives the content area a white background block */
-}
-
-/* =============================== */
-/* 3. FOOTER (#footer)             */
-/* =============================== */
-#footer {
-    /* Ensures the footer spans the full width of the browser, even if content is constrained */
-    width: 100%;
-    background-color: #333; /* Dark background for contrast */
-    color: white;
-    text-align: center; /* Centers text within the footer */
-    padding: 20px 0; /* Adds vertical padding (top/bottom) */
-    font-size: 0.9em;
-    margin-top: 20px; /* Creates spacing between content and footer */
-}
-
-/* Styling for links inside the footer */
-#footer a {
-    color: #bd1313; /* Light grey link color in the footer */
-}
-
-/* Optional: If you add a header block later, define it here too */
-/* 
-header { 
-    background-color: #eee; 
-    padding: 10px; 
-    text-align: center;
-}
-*/
 .form-container {
   display: flex;
   justify-content: center; /* Centers horizontally */
-  align-items: center;     /* Centers vertically */
-  height: 100vh;           /* Gives the container full viewport height */
-}
-
-.box {
-  background-color: lightblue;
-  padding: 20px;
-}
+  align-items: center; /* Centers vertically */
+  height: 100vh; /* Gives the container full viewport height */
+}/*# sourceMappingURL=style.css.map */

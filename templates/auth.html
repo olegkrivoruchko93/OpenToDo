@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="form-container">
+    <form id="auth-form">
+      <p>Добро пожаловать</p>
+      <p>
+        <input type="text" name="username" placeholder="логин" class="input-field" />
+      </p>
+      <p>
+        <input type="text" name="password" placeholder="пароль" class="input-field" />
+      </p>
+      <p>
+        <input type="submit"
+               value="Войти"
+               onclick="setActionForm('login')"
+               class="btn btn-login" />
+        <input type="submit"
+               value="Создать"
+               onclick="setActionForm('register')"
+               class="btn btn-register" />
+      </p>
+      <p>
+        <!-- Put this snippet wherever you want alerts to appear, like a base.html file -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <!-- Map the category to a CSS class (e.g., alert-success, alert-error) -->
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </p>
+    </form>
+  </div>
+  <script>
+    function setActionForm(action){
+      let form = document.getElementById("auth-form");
+      if (action == 'login'){
+        form.action = "{{url_for('login')}}"
+        form.method = "post"
+        form.submit();
+      } else if (action == 'register'){
+        form.action = "{{url_for('register')}}"
+        form.method = "post"
+        form.submit();
+      }
+    }
+  </script>
+{% endblock %}

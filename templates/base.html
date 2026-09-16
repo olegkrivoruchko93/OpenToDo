@@ -1,21 +1,20 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="ru">
   <head>
     <meta charset="UTF-8">
     <title>OpenToDo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="icon" type="image/png" sizes="16x16"
-      href="{{ url_for('static', filename='icons/checklist.png') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="{{ url_for('static', filename='icons/checklist.png') }}">
     {% block head %}
-    {% block title %}
-    {% endblock %}
+      {% block title %}{% endblock %}
     {% endblock %}
   </head>
   <body>
-    <i class="fi fi-rr-calendar-clock"></i>
-    {% block content %}
-    {% endblock %}
-    {% block footer %}
-    {% endblock %}
+    {% block content %}{% endblock %}
+    {% block footer %}{% endblock %}
   </body>
 </html>

@@ -1,0 +1,13 @@
+$background-color-for-website: #f8f9fa; /* Light background color for the whole page */
+$main-font: Arial, sans-serif; /* Sets a clean default font */
+
+body {
+  background-color: $background-color-for-website;
+  font-family: $main-font;
+}
+.form-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  height: 100vh; /* Gives the container full viewport height */
+}
