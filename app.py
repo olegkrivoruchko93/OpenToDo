@@ -1,4 +1,5 @@
 from flask import Flask, render_template, session, redirect, url_for, request, flash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String, event, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -6,13 +7,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.config['SECRET_KEY'] = 'change-me-in-production'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///mydatabase.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+login_manager = LoginManager(app)
+login_manager.init_app(app)
+login_manager.login_view = 'login'          # redirect here if not logged in
+login_manager.login_message = 'Please log in to access this page.'
+
 db = SQLAlchemy(app)
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id: Mapped[str] = mapped_column(String, primary_key=True, index=True)
     username: Mapped[str] = mapped_column(String(25), unique=True, nullable=False)
@@ -24,6 +30,10 @@ class User(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, user_id)
 
 class Task(db.Model):
     __tablename__ = 'task'
@@ -69,7 +79,7 @@ def login():
         # Check if its in the db
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
-            session['username'] = username
+            login_user(user)
             return redirect(url_for('index'))
         else:
             flash('Invalid credentials. Please try again.', 'error')
@@ -78,14 +88,24 @@ def login():
         return render_template("auth.html")
  
 @app.route("/")
+@login_required
 def index():
-    if "username" in session:
-        return render_template("home.html", username=session["username"])
-    return redirect(url_for('login'))
+    return render_template("home.html", username=current_user.username, tasks=current_user.tasks)
+
+@app.route("/add", methods=['POST'])
+@login_required
+def add():
+    description = request.form["task-description"]
+    if len(description) > 0:
+        new_task = Task(description=description, user_id=current_user.id)
+        db.session.add(new_task)
+        db.session.commit()
+        return redirect(url_for('index'))
 
 @app.route("/logout")
+@login_required
 def logout():
-    session.pop('username', None)
+    logout_user()
     return redirect(url_for('login'))
 
 if __name__ == "__main__":

@@ -4,5 +4,12 @@
         <h1>{{ username }}</h1>
         <p>Добро пожаловать</p>
         <a href="{{ url_for("logout") }}" class="btn btn-logout">Выйти</a>
+        <form action="{{ url_for('add') }}" method="POST" type="submit">
+            <input type="text" name="task-description" placeholder="Новая задача..." required>
+            <button type="submit">Добавить задачу</button>
+        </form>        
+        {% for task in tasks %}
+            <p style="color:red">{{ task.description }}</p>
+        {% endfor %}
     </div>
 {% endblock %}
