@@ -1,13 +1,142 @@
-/* Light background color for the whole page */
-/* Sets a clean default font */
-body {
-  background-color: #f8f9fa;
-  font-family: Arial, sans-serif;
+@charset "UTF-8";
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.form-container {
+body {
+  font-family: Arial, sans-serif;
+  background: #f8f9fa;
+  color: #2d3748;
   display: flex;
-  justify-content: center; /* Centers horizontally */
-  align-items: center; /* Centers vertically */
-  height: 100vh; /* Gives the container full viewport height */
+  min-height: 100vh;
+}
+
+.main-layout {
+  display: flex;
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* ---------- Сайдбар ---------- */
+.sidebar {
+  width: 240px;
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar a {
+  display: block;
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar a:hover {
+  background: #374151;
+  color: #fff;
+}
+
+/* ---------- Контент ---------- */
+.content {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+}
+
+/* ---------- Страница логина ---------- */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.login-container {
+  position: relative;
+  width: 400px;
+  /* height: auto — не растягиваем по высоте */
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+h2 {
+  text-align: center;
+  padding: 5px;
+}
+
+/* ---------- Поля ввода ---------- */
+.input-group {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0);
+  border: 1px solid rgba(3, 3, 3, 0.3490196078);
+  border-radius: 30px;
+  font-size: 16px;
+  font-family: inherit;
+  color: #2d3748;
+  outline: none;
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: hsl(0, 0%, 0%);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 4px hsla(240, 2.4390243902%, 20.5%, 0.15);
+}
+
+.input-group input::-moz-placeholder {
+  color: rgba(45, 55, 72, 0.55);
+}
+
+.input-group input::placeholder {
+  color: rgba(45, 55, 72, 0.55);
+}
+
+/* ---------- Кнопки ---------- */
+.btn-login,
+.btn-register {
+  width: 50%;
+  padding: 6px;
+  background: #fff;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  transition: 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+/*--------------*/
+.message-container {
+  padding: 6px;
 }/*# sourceMappingURL=style.css.map */

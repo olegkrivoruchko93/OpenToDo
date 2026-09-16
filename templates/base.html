@@ -10,11 +10,14 @@
           sizes="16x16"
           href="{{ url_for('static', filename='icons/checklist.png') }}">
     {% block head %}
-      {% block title %}{% endblock %}
+      {% block title %}
+      {% endblock %}
     {% endblock %}
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <body>
-    {% block content %}{% endblock %}
-    {% block footer %}{% endblock %}
+  <body class="main-layout">
+    {% block content %}
+    {% endblock %}
+    {% block footer %}
+    {% endblock %}
   </body>
 </html>

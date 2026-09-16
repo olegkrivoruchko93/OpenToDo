@@ -102,6 +102,14 @@ def add():
         db.session.commit()
         return redirect(url_for('index'))
 
+@app.route("/delete/<task_id>", methods=['POST'])
+@login_required
+def delete(task_id):
+    task = db.session.get(Task, task_id)
+    db.session.delete(task)
+    db.session.commit()
+    return redirect(url_for('index'))
+
 @app.route("/logout")
 @login_required
 def logout():
