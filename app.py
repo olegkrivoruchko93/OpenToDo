@@ -12,7 +12,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# DB models
 class User(db.Model):
     __tablename__ = 'user'
     id: Mapped[str] = mapped_column(String, primary_key=True, index=True)
@@ -33,29 +32,24 @@ class Task(db.Model):
     user_id: Mapped[str] = mapped_column(String, ForeignKey('user.id'), nullable=False)
     user: Mapped["User"] = db.relationship(back_populates='tasks')
 
-# Objects events
 @event.listens_for(User, "before_insert")
 def generate_user_id(mapper, connection, target):
     if not target.id:
         target.id = str(uuid.uuid4())
 
-# Objects events
 @event.listens_for(Task, "before_insert")
 def generate_task_id(mapper, connection, target):
     if not target.id:
         target.id = str(uuid.uuid4())
 
-# Routes
 @app.route("/register", methods=['GET', 'POST'])
 def register():
 
     if request.method == 'POST':    
-        # Collect info from from
         username = request.form["username"]
         password = request.form["password"]
-        # Check if its in the db
         user = User.query.filter_by(username=username).first()
-        if not user: # Already exist
+        if not user:
             new_user = User(username=username)
             new_user.set_password(password)
             db.session.add(new_user)
