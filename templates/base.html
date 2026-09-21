@@ -17,7 +17,7 @@
   <body class="main-layout">
     {% block content %}
     {% endblock %}
-    {% block footer %}
-    {% endblock %}
+    {% block footer %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/alerts.js') }}"></script>
   </body>
 </html>

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="login-page">
+    <div class="login-container">
+      <form id="auth-form" action="{{ url_for('register') }}" method="POST">
+        <h2>Создать новый аккаунт...</h2>
+        <div class="input-group">
+          <input type="text" id="username" name="username" placeholder="логин" class="input-field" />
+        </div>
+        <div class="input-group">
+          <input type="password" id="password" name="password" placeholder="пароль" class="input-field" />
+        </div>
+        <div class="button-group">
+          <button type="submit" class="btn-register">Создать</button>
+        </div>
+      </form>
+        <p style="text-align: center;">или</p>
+      <form action="{{ url_for('login') }}">
+        <div class="button-group">
+          <button type="submit" class="btn-login">Войти</button>
+        </div>
+      </form>
+      <p class="message-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}<span class="closebtn">&times;</span></div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </p>
+    </div>
+  </div>
+{% endblock %}

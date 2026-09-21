@@ -1,8 +1,8 @@
 from flask import Flask, render_template, session, redirect, url_for, request, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, String, event, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import String, event, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
@@ -14,7 +14,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'          # redirect here if not logged in
-login_manager.login_message = 'Please log in to access this page.'
+login_manager.login_message = 'Необходимо авторизоваться'
 
 db = SQLAlchemy(app)
 
@@ -55,19 +55,23 @@ def generate_task_id(mapper, connection, target):
 @app.route("/register", methods=['GET', 'POST'])
 def register():
 
-    if request.method == 'POST':    
+    if request.method == 'POST':
         username = request.form["username"]
         password = request.form["password"]
         user = User.query.filter_by(username=username).first()
-        if not user:
+        if user:
+            flash('Пользователь с таким логином уже есть', 'error')
+            return redirect(url_for('register'))
+        else:
             new_user = User(username=username)
             new_user.set_password(password)
             db.session.add(new_user)
             db.session.commit()
             session['username'] = username
-        return redirect(url_for('index'))
+            return redirect(url_for('index'))
     elif request.method == 'GET':
-        return render_template("auth.html")
+        return render_template("register.html")
+    
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -83,14 +87,14 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Invalid credentials. Please try again.', 'error')
-            return render_template("auth.html")
+            return render_template("login.html")
     elif request.method == 'GET':
-        return render_template("auth.html")
+        return render_template("login.html")
  
 @app.route("/")
 @login_required
 def index():
-    return render_template("home.html", username=current_user.username, tasks=current_user.tasks)
+    return render_template("index.html", username=current_user.username, tasks=current_user.tasks)
 
 @app.route("/add", methods=['POST'])
 @login_required
