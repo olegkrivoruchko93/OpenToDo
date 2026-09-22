@@ -1,10 +1,12 @@
-from flask import Flask, render_template, session, redirect, url_for, request, flash
+from flask import Flask, render_template, session, redirect, url_for, request, flash, jsonify, abort
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, event, ForeignKey
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+from enum import Enum
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'change-me-in-production'
@@ -35,12 +37,31 @@ class User(UserMixin, db.Model):
 def load_user(user_id):
     return db.session.get(User, user_id)
 
+
+class TaskStatus(Enum):
+    TODO = "todo"
+    IN_PROGRESS = "in_progress"
+    DONE = "done"
+
+
 class Task(db.Model):
     __tablename__ = 'task'
     id: Mapped[str] = mapped_column(String, primary_key=True)
-    description: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    status: Mapped[TaskStatus] = mapped_column(
+        SQLEnum(TaskStatus), nullable=False, default=TaskStatus.TODO
+    )
     user_id: Mapped[str] = mapped_column(String, ForeignKey('user.id'), nullable=False)
     user: Mapped["User"] = db.relationship(back_populates='tasks')
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "status": str(self.status.value),
+        }
 
 @event.listens_for(User, "before_insert")
 def generate_user_id(mapper, connection, target):
@@ -71,6 +92,31 @@ def register():
             return redirect(url_for('index'))
     elif request.method == 'GET':
         return render_template("register.html")
+
+@app.route("/tasks/<task_id>", methods=["GET", "PATCH"])
+@login_required
+def taskk(task_id):
+    task = db.session.get(Task, task_id)
+    if not task:
+        abort(404)
+    if request.method == "PATCH":
+        data = request.get_json()
+        if not data:
+            abort(400, description="Invalid request body")
+        if "title" in data:
+            if not data["title"] or len(data["title"]) == 0:
+                abort(400, description="Title cannot be empty")
+            task.title = data["title"]
+        if "description" in data:
+            task.description = data["description"]
+        if "status" in data:
+            try:
+                task.status = TaskStatus(data["status"])
+            except ValueError:
+                abort(400, description="Invalid status value")
+        db.session.commit()
+        return jsonify(task.to_dict()), 200
+    return jsonify(task.to_dict()), 200
     
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -99,9 +145,9 @@ def index():
 @app.route("/add", methods=['POST'])
 @login_required
 def add():
-    description = request.form["task-description"]
-    if len(description) > 0:
-        new_task = Task(description=description, user_id=current_user.id)
+    title = request.form["task-title"]
+    if len(title) > 0:
+        new_task = Task(title=title, user_id=current_user.id, status=TaskStatus.TODO)
         db.session.add(new_task)
         db.session.commit()
         return redirect(url_for('index'))

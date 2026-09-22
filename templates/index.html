@@ -8,15 +8,15 @@
     <main class="content">
         <h2>My Tasks</h2>
         <form action="{{ url_for('add') }}" method="POST">
-            <input type="text" name="task-description" placeholder="New task..." required autofocus>
+            <input type="text" name="task-title" placeholder="New task..." required autofocus>
             <button type="submit">Add task</button>
         </form>
         {% if tasks %}
             <p class="task-count">{{ tasks|length }} task{{ 's' if tasks|length != 1 else '' }}</p>
         {% endif %}
         {% for task in tasks %}
-            <div class="task-item">
-                <span>{{ task.description }}</span>
+            <div class="task-item" data-task-id="{{ task.id }}">
+                <span>{{ task.title }}</span>
                 <form action="{{ url_for('delete', task_id=task.id) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this task?')">
                     <button type="submit" title="Delete">&#10005;</button>
                 </form>
@@ -26,4 +26,21 @@
             <p class="empty-state">No tasks yet. Add one above!</p>
         {% endif %}
     </main>
+    <!-- Overlay markup (hidden by default) -->
+    <div id="overlay" class="overlay hidden" aria-hidden="true">
+        <div class="overlay-backdrop" data-close></div>
+        <div class="overlay-card" role="dialog" aria-modal="true">
+        <button class="overlay-close" data-close aria-label="Close">&times;</button>
+        <div class="overlay-form">
+          <input type="text" id="task-title" placeholder="Task title" required>
+          <textarea id="task-desc" placeholder="Description"></textarea>
+          <select id="task-status">
+            <option value="todo">Todo</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+          <button type="button" id="save-btn">Save</button>
+        </div>
+        </div>
+    </div>
 {% endblock %}

@@ -234,3 +234,111 @@ h2 {
   color: #fff;
   border-color: #ef4444;
 }
+
+/* ---------- hidden task card ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.overlay-card {
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: pop 0.2s ease-out;
+}
+
+.overlay-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.overlay-form input,
+.overlay-form textarea,
+.overlay-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: #2d3748;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.overlay-form input:focus,
+.overlay-form textarea:focus,
+.overlay-form select:focus {
+  border-color: #4b5563;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.overlay-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+#save-btn {
+  padding: 10px 16px;
+  background: #4b5563;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 4px;
+}
+
+#save-btn:hover {
+  background: #ef4444;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.overlay-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.task-item {
+  cursor: pointer;
+}
