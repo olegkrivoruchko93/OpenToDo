@@ -3,21 +3,21 @@
   <div class="login-page">
     <div class="login-container">
       <form id="auth-form" action="{{ url_for('register') }}" method="POST">
-        <h2>Создать новый аккаунт...</h2>
+        <h2>Create a new account...</h2>
         <div class="input-group">
-          <input type="text" id="username" name="username" placeholder="логин" class="input-field" />
+          <input type="text" id="username" name="username" placeholder="login" class="input-field" />
         </div>
         <div class="input-group">
-          <input type="password" id="password" name="password" placeholder="пароль" class="input-field" />
+          <input type="password" id="password" name="password" placeholder="password" class="input-field" />
         </div>
         <div class="button-group">
-          <button type="submit" class="btn-register">Создать</button>
+          <button type="submit" class="btn-register">Create</button>
         </div>
       </form>
-        <p style="text-align: center;">или</p>
+        <p style="text-align: center;">or</p>
       <form action="{{ url_for('login') }}">
         <div class="button-group">
-          <button type="submit" class="btn-login">Войти</button>
+          <button type="submit" class="btn-login">Login</button>
         </div>
       </form>
       <p class="message-container">

@@ -2,20 +2,20 @@
 {% block content %}
     <aside class="sidebar">
         <h1>{{ username }}</h1>
-        <p>Добро пожаловать</p>
-        <a href="{{ url_for("logout") }}" class="btn btn-logout">Выйти</a>
+        <p>Welcome</p>
+        <a href="{{ url_for("logout") }}" class="btn btn-logout">Logout</a>
     </aside>
     <main class="content">
         <form action="{{ url_for('add') }}" method="POST" type="submit">
-            <input type="text" name="task-description" placeholder="Новая задача..." required>
-            <button type="submit">Добавить задачу</button>
+            <input type="text" name="task-description" placeholder="New task..." required>
+            <button type="submit">Add task</button>
         </form>        
         {% for task in tasks %}
             <div class="task-item">
                 <span>{{ task.description }}</span>
                 <input type="hidden" name="task_id" value="{{ task.id }}">
                 <form action="{{ url_for('delete', task_id=task.id) }}" method="POST" style="display:inline">
-                    <button type="submit" title="Удалить">&#10005;</button>
+                    <button type="submit" title="Delete">&#10005;</button>
                 </form>
             </div>
         {% endfor %}       

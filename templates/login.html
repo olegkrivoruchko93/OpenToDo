@@ -3,18 +3,18 @@
   <div class="login-page">
     <div class="login-container">
       <form id="auth-form" action="{{ url_for('login') }}" method="POST">
-        <h2 style="text-align: left; padding-bottom: 5px;">Добро пожаловать</h2>
+        <h2 style="text-align: left; padding-bottom: 5px;">Welcome</h2>
         <div class="input-group">
-          <input type="text" id="username" name="username" placeholder="логин" class="input-field" />
+          <input type="text" id="username" name="username" placeholder="login" class="input-field" />
         </div>
         <div class="input-group">
-          <input type="password" id="password" name="password" placeholder="пароль" class="input-field" />
+          <input type="password" id="password" name="password" placeholder="password" class="input-field" />
         </div>
         <div class="button-group">
-          <button type="submit" class="btn-login">Войти</button>
+          <button type="submit" class="btn-login">Login</button>
         </div>
       </form>
-      <p class="register-link">Ещё нет аккаунта? <a href="{{ url_for('register') }}">Создать</a></p>
+      <p class="register-link">Don't have an account? <a href="{{ url_for('register') }}">Create</a></p>
       <p>
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}

@@ -14,7 +14,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'          # redirect here if not logged in
-login_manager.login_message = 'Необходимо авторизоваться'
+login_manager.login_message = 'You must be authorized'
 
 db = SQLAlchemy(app)
 
@@ -60,7 +60,7 @@ def register():
         password = request.form["password"]
         user = User.query.filter_by(username=username).first()
         if user:
-            flash('Пользователь с таким логином уже есть', 'error')
+            flash('User with this login already exists', 'error')
             return redirect(url_for('register'))
         else:
             new_user = User(username=username)
