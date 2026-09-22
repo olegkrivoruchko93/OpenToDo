@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <title>OpenToDo</title>
@@ -10,11 +10,14 @@
           sizes="16x16"
           href="{{ url_for('static', filename='icons/checklist.png') }}">
     {% block head %}
-      {% block title %}{% endblock %}
+      {% block title %}
+      {% endblock %}
     {% endblock %}
-  </head>
-  <body>
-    {% block content %}{% endblock %}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <body class="main-layout">
+    {% block content %}
+    {% endblock %}
     {% block footer %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/alerts.js') }}"></script>
   </body>
 </html>

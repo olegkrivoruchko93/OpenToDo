@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <aside class="sidebar">
+        <h1>{{ username }}</h1>
+        <p>Welcome</p>
+        <a href="{{ url_for("logout") }}" class="btn btn-logout">Logout</a>
+    </aside>
+    <main class="content">
+        <h2>My Tasks</h2>
+        <form action="{{ url_for('add') }}" method="POST">
+            <input type="text" name="task-description" placeholder="New task..." required autofocus>
+            <button type="submit">Add task</button>
+        </form>
+        {% if tasks %}
+            <p class="task-count">{{ tasks|length }} task{{ 's' if tasks|length != 1 else '' }}</p>
+        {% endif %}
+        {% for task in tasks %}
+            <div class="task-item">
+                <span>{{ task.description }}</span>
+                <form action="{{ url_for('delete', task_id=task.id) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this task?')">
+                    <button type="submit" title="Delete">&#10005;</button>
+                </form>
+            </div>
+        {% endfor %}
+        {% if not tasks %}
+            <p class="empty-state">No tasks yet. Add one above!</p>
+        {% endif %}
+    </main>
+{% endblock %}
