@@ -48,7 +48,7 @@ A basic to-do application built with Python (Flask) — created as a hands-on pr
 
 4. Run the app:
    ```bash
-   python app.py
+   python wsgi.py
    ```
 
 5. Open your browser and navigate to **http://127.0.0.1:5000**
@@ -57,24 +57,32 @@ A basic to-do application built with Python (Flask) — created as a hands-on pr
 
 ```
 OpenToDo/
-├── app.py              # Main application entry point
-├── readme.md           # This file
+├── app/
+│   ├── __init__.py       # App factory, config, db & login_manager setup
+│   ├── routes.py         # All route definitions (register, login, tasks, logout)
+│   ├── models/
+│   │   ├── __init__.py   # SQLAlchemy db instance
+│   │   └── models.py     # User, Task, TaskStatus models
+│   ├── static/
+│   │   ├── css/
+│   │   │   ├── style.css     # Compiled stylesheet
+│   │   │   ├── style.scss    # Sass source file
+│   │   │   └── style.css.map # Source map
+│   │   ├── js/
+│   │   │   └── alerts.js     # JavaScript for alert dismissals
+│   │   └── icons/
+│   │       └── checklist.png # App icon
+│   └── templates/
+│       ├── base.html     # Base template (layout skeleton)
+│       ├── index.html      # Main dashboard with task list
+│       ├── login.html      # Login page
+│       └── register.html   # Registration page
 ├── instance/
 │   └── mydatabase.db   # SQLite database (created on first run)
-├── static/
-│   ├── css/
-│   │   ├── style.css   # Compiled stylesheet
-│   │   ├── style.scss  # Sass source file
-│   │   └── style.css.map
-│   ├── js/
-│   │   └── alerts.js   # JavaScript for alert dismissals
-│   └── icons/
-│       └── checklist.png
-└── templates/
-    ├── base.html       # Base template (layout skeleton)
-    ├── login.html      # Login page
-    ├── register.html   # Registration page
-    └── index.html      # Main dashboard with task list
+├── .gitignore
+├── readme.md           # This file
+├── requirements.txt    # Python dependencies
+└── wsgi.py             # WSGI entry point
 ```
 
 ## How It Works
