@@ -1,4 +1,53 @@
-.vscode
-.venv
-*.db
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+instance/*.db
+instance/*.sqlite
+
+# Flask / Web
+*.log
+*.pot
+*.mo
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Distribution / Build
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Source maps
+*.map

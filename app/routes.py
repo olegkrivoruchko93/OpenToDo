@@ -1,77 +1,16 @@
-from flask import Flask, render_template, session, redirect, url_for, request, flash, jsonify, abort
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, event, ForeignKey
-from sqlalchemy import Enum as SQLEnum
-from sqlalchemy.orm import Mapped, mapped_column
-from werkzeug.security import generate_password_hash, check_password_hash
-import uuid
-from enum import Enum
+from flask import render_template, session, redirect, url_for, request, flash, jsonify, abort, Blueprint
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'change-me-in-production'
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///mydatabase.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+from app.models import db
 
-login_manager = LoginManager(app)
-login_manager.init_app(app)
-login_manager.login_view = 'login'          # redirect here if not logged in
-login_manager.login_message = 'You must be authorized'
+from app.models.models import User, Task, TaskStatus
+from app import app, login_manager
 
-db = SQLAlchemy(app)
-
-class User(UserMixin, db.Model):
-    __tablename__ = 'user'
-    id: Mapped[str] = mapped_column(String, primary_key=True, index=True)
-    username: Mapped[str] = mapped_column(String(25), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(150), nullable=False)
-    tasks = db.relationship('Task', back_populates='user')
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, user_id)
 
-
-class TaskStatus(Enum):
-    TODO = "todo"
-    IN_PROGRESS = "in_progress"
-    DONE = "done"
-
-
-class Task(db.Model):
-    __tablename__ = 'task'
-    id: Mapped[str] = mapped_column(String, primary_key=True)
-    title: Mapped[str] = mapped_column(String, nullable=False)
-    description: Mapped[str] = mapped_column(String, nullable=True)
-    status: Mapped[TaskStatus] = mapped_column(
-        SQLEnum(TaskStatus), nullable=False, default=TaskStatus.TODO
-    )
-    user_id: Mapped[str] = mapped_column(String, ForeignKey('user.id'), nullable=False)
-    user: Mapped["User"] = db.relationship(back_populates='tasks')
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "description": self.description,
-            "status": str(self.status.value),
-        }
-
-@event.listens_for(User, "before_insert")
-def generate_user_id(mapper, connection, target):
-    if not target.id:
-        target.id = str(uuid.uuid4())
-
-@event.listens_for(Task, "before_insert")
-def generate_task_id(mapper, connection, target):
-    if not target.id:
-        target.id = str(uuid.uuid4())
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -117,16 +56,14 @@ def taskk(task_id):
         db.session.commit()
         return jsonify(task.to_dict()), 200
     return jsonify(task.to_dict()), 200
-    
+
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
 
     if request.method == 'POST':    
-        # Collect info from from
         username = request.form["username"]
         password = request.form["password"]
-        # Check if its in the db
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             login_user(user)
@@ -136,7 +73,7 @@ def login():
             return render_template("login.html")
     elif request.method == 'GET':
         return render_template("login.html")
- 
+
 @app.route("/")
 @login_required
 def index():
@@ -165,8 +102,3 @@ def delete(task_id):
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
