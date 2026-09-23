@@ -6,6 +6,7 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+*.egg-info/
 
 # Virtual Environment
 .venv/
@@ -13,6 +14,8 @@ venv/
 ENV/
 env/
 .env
+.env.local
+.env.*.local
 
 # IDE
 .vscode/
@@ -42,12 +45,18 @@ coverage.xml
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+*.map
 
 # Distribution / Build
 dist/
 build/
 *.egg-info/
 .eggs/
+node_modules/
 
-# Source maps
-*.map
+# Config
+*.ini
+*.cfg
+*.toml
+config.py
+config.pyc
