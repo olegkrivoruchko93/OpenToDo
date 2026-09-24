@@ -34,6 +34,7 @@ class Task(db.Model):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
+    description: Mapped[str] = mapped_column(String, nullable=True)
     status: Mapped[TaskStatus] = mapped_column(
         SQLEnum(TaskStatus), nullable=False, default=TaskStatus.TODO
     )

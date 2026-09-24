@@ -77,7 +77,24 @@ def login():
 @app.route("/")
 @login_required
 def index():
-    return render_template("index.html", username=current_user.username, tasks=current_user.tasks)
+    status_filter = request.args.get("status")
+    try:
+        if status_filter:
+            TaskStatus(status_filter)
+        else:
+            status_filter = None
+    except ValueError:
+        status_filter = None
+    if status_filter:
+        tasks = [t for t in current_user.tasks if t.status == TaskStatus(status_filter)]
+    else:
+        tasks = current_user.tasks
+    return render_template(
+        "index.html",
+        username=current_user.username,
+        tasks=tasks,
+        current_filter=status_filter or "all",
+    )
 
 @app.route("/add", methods=['POST'])
 @login_required

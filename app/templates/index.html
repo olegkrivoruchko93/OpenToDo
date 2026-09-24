@@ -7,6 +7,12 @@
     </aside>
     <main class="content">
         <h2>My Tasks</h2>
+        <div class="filter-bar">
+            <a href="{{ url_for('index') }}" class="filter-link {% if current_filter == 'all' %}active{% endif %}">All</a>
+            <a href="{{ url_for('index', status='todo') }}" class="filter-link {% if current_filter == 'todo' %}active{% endif %}">Todo</a>
+            <a href="{{ url_for('index', status='in_progress') }}" class="filter-link {% if current_filter == 'in_progress' %}active{% endif %}">In Progress</a>
+            <a href="{{ url_for('index', status='done') }}" class="filter-link {% if current_filter == 'done' %}active{% endif %}">Done</a>
+        </div>
         <form action="{{ url_for('add') }}" method="POST">
             <input type="text" name="task-title" placeholder="New task..." required autofocus>
             <button type="submit">Add task</button>
