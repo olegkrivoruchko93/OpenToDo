@@ -38,11 +38,55 @@ body {
   padding: 10px 12px;
   border-radius: 8px;
   font-size: 0.95rem;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .sidebar a:hover {
   background: #374151;
+  color: #fff;
+}
+
+.sidebar img {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.sidebar .project-item {
+  display: block;
+  color: #cbd5e1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.sidebar .project-item:hover {
+  background: #374151;
+  color: #fff;
+}
+
+.sidebar .project-item form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar .project-item label {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+.sidebar .project-item:hover label {
   color: #fff;
 }
 
@@ -101,7 +145,10 @@ h2 {
   font-family: inherit;
   color: #2d3748;
   outline: none;
-  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  transition:
+    border-color 0.3s,
+    background 0.3s,
+    box-shadow 0.3s;
 }
 
 .input-group input:focus {
@@ -230,7 +277,9 @@ h2 {
   cursor: pointer;
   font-size: 0.9rem;
   text-decoration: none;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .btn-logout:hover {
@@ -321,7 +370,9 @@ h2 {
   color: #2d3748;
   background: #fff;
   outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .overlay-form input:focus,

@@ -1,11 +1,12 @@
 from flask import render_template, session, redirect, url_for, request, flash, jsonify, abort, Blueprint
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from sqlalchemy.orm import joinedload
 
 from app.models import db
 
 from app.models.models import User, Task, TaskStatus, Projects
 from app import app, login_manager
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 @login_manager.user_loader
@@ -83,24 +84,39 @@ def login():
 @app.route("/")
 @login_required
 def index():
+
     status_filter = request.args.get("status")
+    date_filter = request.args.get("date_filter")
+
+    filters = [Task.user_id == current_user.id]
+
     try:
         if status_filter:
-            TaskStatus(status_filter)
-        else:
-            status_filter = None
+            filters.append(Task.status == TaskStatus(status_filter))
     except ValueError:
-        status_filter = None
-    if status_filter:
-        tasks = [t for t in current_user.tasks if t.status == TaskStatus(status_filter)]
-    else:
-        tasks = current_user.tasks
+        pass  # Invalid status filter, ignore it
+ 
+
+    now = datetime.now()
+
+    if date_filter == "today":
+        start_of_today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_of_today = now.replace(hour=23, minute=59, second=59, microsecond=0)
+        filters.append(Task.due_date >= start_of_today)
+        filters.append(Task.due_date <= end_of_today)
+    elif date_filter == "upcoming":
+        upcoming_end = now + timedelta(days=2)
+        filters.append(Task.due_date >= now)
+        filters.append(Task.due_date <= upcoming_end)
+
+    tasks_query = Task.query.filter(*filters)
+    tasks = tasks_query.options(db.joinedload(Task.project)).all()
     projects = current_user.projects
     return render_template(
         "index.html",
-        username=current_user.username,
         tasks=tasks,
         current_filter=status_filter or "all",
+        current_date_filter=date_filter or "all",
         projects=projects
     )
 

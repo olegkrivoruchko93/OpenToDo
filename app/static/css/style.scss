@@ -17,6 +17,10 @@ body {
   min-height: 100vh;
 }
 
+.sidebar {
+  font-family: $main-font;
+}
+
 .main-layout {
   display: flex;
   flex: 1;
@@ -45,6 +49,13 @@ body {
   transition:
     background 0.2s,
     color 0.2s;
+}
+.sidebar img {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 8px;
 }
 
 .sidebar a:hover {

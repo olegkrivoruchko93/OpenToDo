@@ -41,7 +41,8 @@ class Task(db.Model):
     )
     user_id: Mapped[str] = mapped_column(String, ForeignKey('user.id'), nullable=False)
     user: Mapped["User"] = db.relationship('User', back_populates='tasks')
-    project_id: Mapped[str] = mapped_column(String, nullable=True)
+    project_id: Mapped[str] = mapped_column(String, ForeignKey('projects.id'), nullable=True)
+    project: Mapped["Projects"] = db.relationship('Projects', back_populates='tasks')
 
     def to_dict(self):
         return {
@@ -59,6 +60,7 @@ class Projects(db.Model):
     title: Mapped[str] = mapped_column(String, nullable=False)
     user_id: Mapped[str] = mapped_column(String, ForeignKey('user.id'), nullable=False)
     user: Mapped["User"] = db.relationship('User', back_populates='projects')
+    tasks = db.relationship('Task', back_populates='project')
 
     def to_dict(self):
         return {
