@@ -46,6 +46,10 @@ body {
   color: #fff;
 }
 
+.sidebar .btn-logout {
+  margin-top: auto;
+}
+
 /* ---------- Content ---------- */
 .content {
   flex: 1;

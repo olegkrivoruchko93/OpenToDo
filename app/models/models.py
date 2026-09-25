@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from sqlalchemy import String, event, ForeignKey
+from sqlalchemy import String, event, ForeignKey, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -34,7 +34,7 @@ class Task(db.Model):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
-    description: Mapped[str] = mapped_column(String, nullable=True)
+    due_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     status: Mapped[TaskStatus] = mapped_column(
         SQLEnum(TaskStatus), nullable=False, default=TaskStatus.TODO
     )
@@ -47,6 +47,7 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "status": str(self.status.value),
+            "due_date": str(self.due_date)
         }
 
 

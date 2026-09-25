@@ -15,6 +15,7 @@ const overlay = document.getElementById("overlay");
 const elTitle = document.getElementById("task-title");
 const elDesc = document.getElementById("task-desc");
 const elStatus = document.getElementById("task-status");
+const elDueDate = document.getElementById("task-due-date");
 const saveBtn = document.getElementById("save-btn");
 let currentTaskId = null;
 
@@ -31,10 +32,12 @@ document.querySelectorAll(".task-item").forEach((el) => {
       elTitle.value = task.title;
       elDesc.value = task.description || "";
       elStatus.value = task.status;
+      elDueDate.value = task.due_date || "";
     } catch (err) {
       elTitle.value = "Error";
       elDesc.value = err.message;
       elStatus.value = "todo";
+      elDueDate.value = "";
     }
   });
 });
@@ -50,6 +53,7 @@ saveBtn.addEventListener("click", async () => {
         title: elTitle.value,
         description: elDesc.value,
         status: elStatus.value,
+        due_date: elDueDate.value,
       }),
     });
     if (!res.ok) throw new Error("Failed to save");

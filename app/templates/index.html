@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
     <aside class="sidebar">
-        <h1>{{ username }}</h1>
-        <p>Welcome</p>
-        <a href="{{ url_for("logout") }}" class="btn btn-logout">Logout</a>
+        <p>{{ username.capitalize() }}, welcome</p>
+        <a href="{{ url_for("logout") }}" class="btn-logout">Logout</a>
     </aside>
     <main class="content">
         <h2>My Tasks</h2>
@@ -22,7 +21,10 @@
         {% endif %}
         {% for task in tasks %}
             <div class="task-item" data-task-id="{{ task.id }}">
-                <span>{{ task.title }}</span>
+                <span>
+                    <p>{{ task.title }}</p>
+                    <p style="font-size: small; color: #666;">{{ task.due_date.strftime('%Y-%m-%d %H:%M') if task.due_date else '' }}</p>
+                </span>
                 <form action="{{ url_for('delete', task_id=task.id) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this task?')">
                     <button type="submit" title="Delete">&#10005;</button>
                 </form>
@@ -45,6 +47,7 @@
             <option value="in_progress">In Progress</option>
             <option value="done">Done</option>
           </select>
+          <input type="datetime-local" name="datetime" id="task-due-date">
           <button type="button" id="save-btn">Save</button>
         </div>
         </div>

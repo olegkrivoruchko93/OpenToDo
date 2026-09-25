@@ -5,6 +5,7 @@ from app.models import db
 
 from app.models.models import User, Task, TaskStatus
 from app import app, login_manager
+from datetime import datetime
 
 
 @login_manager.user_loader
@@ -53,6 +54,8 @@ def taskk(task_id):
                 task.status = TaskStatus(data["status"])
             except ValueError:
                 abort(400, description="Invalid status value")
+        if "due_date" in data:
+            task.due_date = datetime.fromisoformat(data["due_date"])
         db.session.commit()
         return jsonify(task.to_dict()), 200
     return jsonify(task.to_dict()), 200

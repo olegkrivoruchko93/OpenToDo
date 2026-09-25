@@ -52,6 +52,10 @@ body {
   color: #fff;
 }
 
+.sidebar .btn-logout {
+  margin-top: auto; /* This pushes the logout link to the bottom */
+}
+
 /* ---------- Content ---------- */
 .content {
   flex: 1;
@@ -292,7 +296,9 @@ h2 {
   color: #2d3748;
   background: #fff;
   outline: none;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .overlay-form input:focus,
