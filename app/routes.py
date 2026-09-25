@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 
 from app.models import db
 
-from app.models.models import User, Task, TaskStatus
+from app.models.models import User, Task, TaskStatus, Projects
 from app import app, login_manager
 from datetime import datetime
 
@@ -35,7 +35,7 @@ def register():
 
 @app.route("/tasks/<task_id>", methods=["GET", "PATCH"])
 @login_required
-def taskk(task_id):
+def task(task_id):
     task = db.session.get(Task, task_id)
     if not task:
         abort(404)
@@ -56,9 +56,12 @@ def taskk(task_id):
                 abort(400, description="Invalid status value")
         if "due_date" in data:
             task.due_date = datetime.fromisoformat(data["due_date"])
+        if "project_id" in data:
+            task.project_id = data["project_id"]
         db.session.commit()
         return jsonify(task.to_dict()), 200
     return jsonify(task.to_dict()), 200
+
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -92,11 +95,13 @@ def index():
         tasks = [t for t in current_user.tasks if t.status == TaskStatus(status_filter)]
     else:
         tasks = current_user.tasks
+    projects = current_user.projects
     return render_template(
         "index.html",
         username=current_user.username,
         tasks=tasks,
         current_filter=status_filter or "all",
+        projects=projects
     )
 
 @app.route("/add", methods=['POST'])
@@ -116,6 +121,54 @@ def delete(task_id):
     db.session.delete(task)
     db.session.commit()
     return redirect(url_for('index'))
+
+@app.route("/projects/<project_id>", methods=["PATCH"])
+@login_required
+def update_project(project_id):
+    project = db.session.get(Projects, project_id)
+    if not project:
+        abort(404)
+    data = request.get_json()
+    if not data:
+        abort(400, description="Invalid request body")
+    if "title" in data:
+        if not data["title"] or len(data["title"]) == 0:
+            abort(400, description="Title cannot be empty")
+        project.title = data["title"]
+    db.session.commit()
+    return jsonify(project.to_dict()), 200
+
+
+@app.route("/projects", methods=['POST'])
+@login_required
+def projects():
+    if request.method == 'POST':
+        new_project = Projects(user_id=current_user.id)
+        new_project.title = "New Project"
+        db.session.add(new_project)
+        db.session.commit()
+        status_filter = request.args.get("status")
+        try:
+            if status_filter:
+                TaskStatus(status_filter)
+            else:
+                status_filter = None
+        except ValueError:
+            status_filter = None
+        if status_filter:
+            tasks = [t for t in current_user.tasks if t.status == TaskStatus(status_filter)]
+        else:
+            tasks = current_user.tasks
+        projects = current_user.projects
+        return render_template(
+                "index.html",
+                username=current_user.username,
+                tasks=tasks,
+                current_filter=status_filter or "all",
+                projects=projects
+            )
+    elif request.method == 'GET':
+        pass
 
 @app.route("/logout")
 @login_required

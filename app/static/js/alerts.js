@@ -16,6 +16,7 @@ const elTitle = document.getElementById("task-title");
 const elDesc = document.getElementById("task-desc");
 const elStatus = document.getElementById("task-status");
 const elDueDate = document.getElementById("task-due-date");
+const elProject = document.getElementById("task-project");
 const saveBtn = document.getElementById("save-btn");
 let currentTaskId = null;
 
@@ -33,11 +34,13 @@ document.querySelectorAll(".task-item").forEach((el) => {
       elDesc.value = task.description || "";
       elStatus.value = task.status;
       elDueDate.value = task.due_date || "";
+      elProject.value = task.project_id || "";
     } catch (err) {
       elTitle.value = "Error";
       elDesc.value = err.message;
       elStatus.value = "todo";
       elDueDate.value = "";
+      elProject.value = "";
     }
   });
 });
@@ -54,6 +57,7 @@ saveBtn.addEventListener("click", async () => {
         description: elDesc.value,
         status: elStatus.value,
         due_date: elDueDate.value,
+        project_id: elProject.value,
       }),
     });
     if (!res.ok) throw new Error("Failed to save");
@@ -82,4 +86,56 @@ overlay.querySelectorAll("[data-close]").forEach((el) => {
 // Close on Escape
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeOverlay();
+});
+
+// Make project items editable on double-click
+document.querySelectorAll(".project-item").forEach((el) => {
+  el.addEventListener("dblclick", () => {
+    const p = el.querySelector("p");
+    const projectId = el.dataset.projectId;
+    const currentTitle = p.textContent.trim();
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = currentTitle;
+    input.className = "project-edit-input";
+
+    p.replaceWith(input);
+    input.focus();
+    input.select();
+
+    function save() {
+      const newTitle = input.value.trim();
+      if (!newTitle || newTitle === currentTitle) {
+        input.replaceWith(p);
+        return;
+      }
+      fetch(`/projects/${projectId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to save");
+          return res.json();
+        })
+        .then((data) => {
+          p.textContent = data.title;
+          input.replaceWith(p);
+        })
+        .catch(() => {
+          input.replaceWith(p);
+        });
+    }
+
+    input.addEventListener("blur", save);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        save();
+      } else if (e.key === "Escape") {
+        input.replaceWith(p);
+      }
+    });
+  });
 });

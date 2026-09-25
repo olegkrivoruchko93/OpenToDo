@@ -2,6 +2,19 @@
 {% block content %}
     <aside class="sidebar">
         <p>{{ username.capitalize() }}, welcome</p>
+        <div>
+            <form action="{{ url_for('projects') }}" method="POST">
+                <label for="Add project">My projects</label>
+                <button type="submit" href="{{ url_for("projects") }}" class="btn-add-project" aria-label="Add new project">+</button>
+            </form>
+        </div>
+        {% for project in projects %}
+            <div class="project-item" data-project-id="{{ project.id }}">
+                <span>
+                    <p>{{ project.title }}</p>
+                </span>
+            </div>
+        {% endfor %}
         <a href="{{ url_for("logout") }}" class="btn-logout">Logout</a>
     </aside>
     <main class="content">
@@ -46,6 +59,12 @@
             <option value="todo">Todo</option>
             <option value="in_progress">In Progress</option>
             <option value="done">Done</option>
+          </select>
+          <select id="task-project">
+            <option value="">No Project</option>
+            {% for project in projects %}
+                <option value="{{ project.id }}">{{ project.title }}</option>
+            {% endfor %}
           </select>
           <input type="datetime-local" name="datetime" id="task-due-date">
           <button type="button" id="save-btn">Save</button>
