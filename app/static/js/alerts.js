@@ -18,6 +18,7 @@ const elStatus = document.getElementById("task-status");
 const elDueDate = document.getElementById("task-due-date");
 const elProject = document.getElementById("task-project");
 const saveBtn = document.getElementById("save-btn");
+const elCheckBox = document.getElementById("task-checkbox");
 let currentTaskId = null;
 
 // Open overlay when a task item is clicked
@@ -35,12 +36,33 @@ document.querySelectorAll(".task-item").forEach((el) => {
       elStatus.value = task.status;
       elDueDate.value = task.due_date || "";
       elProject.value = task.project_id || "";
+      elCheckBox.checked = task.completed || false;
     } catch (err) {
       elTitle.value = "Error";
       elDesc.value = err.message;
       elStatus.value = "todo";
       elDueDate.value = "";
       elProject.value = "";
+      elCheckBox.checked = false;
+    }
+  });
+});
+
+// Mark task as completed when checkbox is changed
+document.querySelectorAll(".task-checkbox").forEach((el) => {
+  el.addEventListener("change", async () => {
+    const currentTaskId = el.dataset.taskId;
+    if (!currentTaskId) return;
+    try {
+      const res = await fetch(`/cheked/${currentTaskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      el.value = el.checked ? "true" : "false";
+    } catch (err) {
+      elTitle.value = "Error saving!";
+      elDesc.value = err.message;
     }
   });
 });
@@ -58,10 +80,11 @@ saveBtn.addEventListener("click", async () => {
         status: elStatus.value,
         due_date: elDueDate.value,
         project_id: elProject.value,
+        completed: elCheckBox.checked,
       }),
     });
     if (!res.ok) throw new Error("Failed to save");
-    closeOverlay();
+    location.reload();
   } catch (err) {
     elTitle.value = "Error saving!";
     elDesc.value = err.message;

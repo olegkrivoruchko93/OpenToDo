@@ -2,21 +2,30 @@
 {% block content %}
     <aside class="sidebar">
         <div class="date-filter">
-            <a href="{{ url_for('index', date_filter='inbox') }}" class="{% if current_date_filter == 'inbox' %}active{% endif %}">
-                <img src="{{ url_for('static', filename='icons/inbox.svg') }}" role="img"/>
+            <a href="{{ url_for("index") }}"
+               class="{% if current_date_filter == 'inbox' %}active{% endif %}">
+                <img src="{{ url_for('static', filename='icons/inbox.svg') }}"
+                     alt=""
+                     role="img" />
                 <span>Inbox</span>
             </a>
-            <a href="{{ url_for('index', date_filter='today') }}" class="{% if current_date_filter == 'today' %}active{% endif %}">
-                <img src="{{ url_for('static', filename='icons/star.svg') }}" role="img"/>
+            <a href="{{ url_for('index', date_filter='today') }}"
+               class="{% if current_date_filter == 'today' %}active{% endif %}">
+                <img src="{{ url_for('static', filename='icons/star.svg') }}"
+                     alt=""
+                     role="img" />
                 <span>Today</span>
             </a>
-            <a href="{{ url_for('index', date_filter='upcoming') }}" class="{% if current_date_filter == 'upcoming' %}active{% endif %}">
-                <img src="{{ url_for('static', filename='icons/calendar.svg') }}" role="img"/>
+            <a href="{{ url_for('index', date_filter='upcoming') }}"
+               class="{% if current_date_filter == 'upcoming' %}active{% endif %}">
+                <img src="{{ url_for('static', filename='icons/calendar.svg') }}"
+                     alt=""
+                     role="img" />
                 <span>Upcoming</span>
             </a>
         </div>
         <div class="project-item">
-            <form action="{{ url_for('projects') }}" method="POST">
+            <form action="{{ url_for("projects") }}" method="post">
                 <label for="Add project">My projects</label>
                 <button type="submit" class="btn-add-project" aria-label="Add new project">+</button>
             </form>
@@ -26,43 +35,75 @@
                 <p>{{ project.title }}</p>
             </div>
         {% endfor %}
-        <a href="{{ url_for("logout") }}" class="btn-logout">Logout</a>
+        <div class="sidebar-buttons">
+            <a href="{{ url_for("logout") }}">
+                <img src="{{ url_for('static', filename='icons/archive.svg') }}"
+                     alt="archive"
+                     role="img" />
+            </a>
+            <a href="{{ url_for("logout") }}">
+                <img src="{{ url_for('static', filename='icons/logout.svg') }}"
+                     alt="logout"
+                     role="img" />
+            </a>
+        </div>
     </aside>
     <main class="content">
-        <h2>My Tasks</h2>
-        <div class="filter-bar">
-            <a href="{{ url_for('index') }}" class="filter-link {% if current_filter == 'all' %}active{% endif %}">All</a>
-            <a href="{{ url_for('index', status='todo') }}" class="filter-link {% if current_filter == 'todo' %}active{% endif %}">Todo</a>
-            <a href="{{ url_for('index', status='in_progress') }}" class="filter-link {% if current_filter == 'in_progress' %}active{% endif %}">In Progress</a>
-            <a href="{{ url_for('index', status='done') }}" class="filter-link {% if current_filter == 'done' %}active{% endif %}">Done</a>
-        </div>
-        <form action="{{ url_for('add') }}" method="POST">
-            <input type="text" name="task-title" placeholder="New task..." required autofocus>
+        <h2>{% if current_date_filter == "today" %}Today{% elif current_date_filter == "upcoming" %}Upcoming{% elif current_date_filter == "inbox" %}Inbox{% else %}Inbox{% endif %}</h2>
+        <form action="{{ url_for("add") }}"
+              method="post"
+              style="position: absolute;
+                     bottom: 10px;
+                     width: 50%">
             <button type="submit">Add task</button>
         </form>
-        {% if tasks %}
-            <p class="task-count">{{ tasks|length }} task{{ 's' if tasks|length != 1 else '' }}</p>
-        {% endif %}
         {% for task in tasks %}
-            <div class="task-item" data-task-id="{{ task.id }}">
-                <span>
-                    <p>{{ task.title }}</p>
-                    <div>
-                        <p style="font-size: small; color: #666;">
-                            {{ task.due_date.strftime('%Y-%m-%d %H:%M') if task.due_date else '' }} / 
-                            {% if task.project %}
-                                {{ task.project.title }}
-                            {% else %}
-                                No Project
-                            {% endif %}
-                            {% if task.due_date %}
-                                · {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}
-                            {% endif %}
-                        </p>
-                    </div>
-                </span>
-                <form action="{{ url_for('delete', task_id=task.id) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this task?')">
-                    <button type="submit" title="Delete">&#10005;</button>
+            <div class="task-item-container"
+                 style="display: flex;
+                        flex-direction: row">
+                <div style="display: flex;
+                            width: 5px;
+                            align-items: center;
+                            margin-right: 1px">
+                    <input type="checkbox"
+                           class="task-checkbox"
+                           name="task_checked"
+                           data-task-id="{{ task.id }}"
+                           value="{{ task.completed }}"
+                           {% if task.completed %}checked{% endif %}>
+                </div>
+                <div data-task-id="{{ task.id }}"
+                     class="task-item"
+                     style="display: flex;
+                            flex-direction: row;
+                            flex-grow: 1;
+                            margin-left: 16px;
+                            justify-content: space-between">
+                    <span>
+                        <p>{{ task.title }}</p>
+                        <div>
+                            <p class="task-meta">
+                                {{ task.due_date.strftime("%Y-%m-%d %H:%M") if task.due_date else '' }} /
+                                {% if task.project %}
+                                    {{ task.project.title }}
+                                {% else %}
+                                    No Project
+                                {% endif %}
+                            </p>
+                        </div>
+                    </span>
+                </div>
+                <form action="{{ url_for('delete', task_id=task.id) }}"
+                      method="post"
+                      class="delete-form"
+                      onsubmit="return confirm('Delete this task?')"
+                      style="margin-left: auto;
+                             background: none;
+                             border: none;
+                             cursor: pointer;
+                             width: 20px;
+                             height: 20px">
+                    <button type="submit" title="Delete">✕</button>
                 </form>
             </div>
         {% endfor %}
@@ -74,24 +115,32 @@
     <div id="overlay" class="overlay hidden" aria-hidden="true">
         <div class="overlay-backdrop" data-close></div>
         <div class="overlay-card" role="dialog" aria-modal="true">
-        <button class="overlay-close" data-close aria-label="Close">&times;</button>
-        <div class="overlay-form">
-          <input type="text" id="task-title" placeholder="Task title" required>
-          <textarea id="task-desc" placeholder="Description"></textarea>
-          <select id="task-status">
-            <option value="todo">Todo</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
-          </select>
-          <select id="task-project">
-            <option value="">No Project</option>
-            {% for project in projects %}
-                <option value="{{ project.id }}">{{ project.title }}</option>
-            {% endfor %}
-          </select>
-          <input type="datetime-local" name="datetime" id="task-due-date">
-          <button type="button" id="save-btn">Save</button>
-        </div>
+            <button type="button" class="overlay-close" data-close aria-label="Close">×</button>
+            <div class="overlay-form">
+                <div style="display: flex; flex-direction: row;">
+                    <input type="checkbox"
+                           id="task-checkbox"
+                           style="display: flex;
+                                  width: 15px;
+                                  align-items: center;
+                                  margin-right: 15px">
+                    <input type="text" id="task-title" placeholder="Task title" required>
+                </div>
+                <textarea id="task-desc" placeholder="Description"></textarea>
+                <select id="task-status">
+                    <option value="todo">Todo</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="done">Done</option>
+                </select>
+                <select id="task-project">
+                    <option value="">No Project</option>
+                    {% for project in projects %}
+                        <option value="{{ project.id }}">{{ project.title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="datetime-local" name="datetime" id="task-due-date">
+                <button type="button" id="save-btn">Save</button>
+            </div>
         </div>
     </div>
 {% endblock %}

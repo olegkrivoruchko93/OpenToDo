@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 
 from app.models import db
 
-from app.models.models import User, Task, TaskStatus, Projects
+from app.models.models import User, Task, TaskStatus, Project
 from app import app, login_manager
 from datetime import datetime, timedelta
 
@@ -59,6 +59,8 @@ def task(task_id):
             task.due_date = datetime.fromisoformat(data["due_date"])
         if "project_id" in data:
             task.project_id = data["project_id"]
+        if "completed" in data:
+            task.completed = data["completed"]
         db.session.commit()
         return jsonify(task.to_dict()), 200
     return jsonify(task.to_dict()), 200
@@ -115,7 +117,6 @@ def index():
     return render_template(
         "index.html",
         tasks=tasks,
-        current_filter=status_filter or "all",
         current_date_filter=date_filter or "all",
         projects=projects
     )
@@ -123,7 +124,7 @@ def index():
 @app.route("/add", methods=['POST'])
 @login_required
 def add():
-    title = request.form["task-title"]
+    title = 'New Task'
     if len(title) > 0:
         new_task = Task(title=title, user_id=current_user.id, status=TaskStatus.TODO)
         db.session.add(new_task)
@@ -138,10 +139,21 @@ def delete(task_id):
     db.session.commit()
     return redirect(url_for('index'))
 
+@app.route("/cheked/<task_id>", methods=['PATCH'])
+@login_required
+def cheked(task_id):
+    task = db.session.get(Task, task_id)
+    if not task:
+        abort(404)
+    if request.method == "PATCH":
+        task.completed = not task.completed
+        db.session.commit()
+        return jsonify(task.completed ), 200
+
 @app.route("/projects/<project_id>", methods=["PATCH"])
 @login_required
 def update_project(project_id):
-    project = db.session.get(Projects, project_id)
+    project = db.session.get(Project, project_id)
     if not project:
         abort(404)
     data = request.get_json()
@@ -159,7 +171,7 @@ def update_project(project_id):
 @login_required
 def projects():
     if request.method == 'POST':
-        new_project = Projects(user_id=current_user.id)
+        new_project = Project(user_id=current_user.id)
         new_project.title = "New Project"
         db.session.add(new_project)
         db.session.commit()
@@ -180,7 +192,6 @@ def projects():
                 "index.html",
                 username=current_user.username,
                 tasks=tasks,
-                current_filter=status_filter or "all",
                 projects=projects
             )
     elif request.method == 'GET':
