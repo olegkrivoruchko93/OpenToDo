@@ -1,0 +1,32 @@
+<!-- Overlay markup (hidden by default) -->
+<div id="overlay" class="overlay hidden" aria-hidden="true">
+    <div class="overlay-backdrop" data-close></div>
+    <div class="overlay-card" role="dialog" aria-modal="true">
+        <button type="button" class="overlay-close" data-close aria-label="Close">×</button>
+        <div class="overlay-form">
+            <div style="display: flex; flex-direction: row;">
+                <input type="checkbox"
+                       id="task-checkbox"
+                       style="display: flex;
+                              width: 15px;
+                              align-items: center;
+                              margin-right: 15px">
+                <input type="text" id="task-title" placeholder="Task title" required>
+            </div>
+            <textarea id="task-desc" placeholder="Description"></textarea>
+            <select id="task-status">
+                <option value="todo">Todo</option>
+                <option value="in_progress">In Progress</option>
+                <option value="done">Done</option>
+            </select>
+            <select id="task-project">
+                <option value="">No Project</option>
+                {% for project in projects %}
+                    <option value="{{ project.id }}">{{ project.title }}</option>
+                {% endfor %}
+            </select>
+            <input type="datetime-local" name="datetime" id="task-due-date">
+            <button type="button" id="save-btn">Save</button>
+        </div>
+    </div>
+</div>

@@ -49,16 +49,19 @@ def task(task_id):
                 abort(400, description="Title cannot be empty")
             task.title = data["title"]
         if "description" in data:
-            task.description = data["description"]
+            task.description = data["description"] or None
         if "status" in data:
             try:
                 task.status = TaskStatus(data["status"])
             except ValueError:
                 abort(400, description="Invalid status value")
         if "due_date" in data:
-            task.due_date = datetime.fromisoformat(data["due_date"])
+            if data["due_date"]:
+                task.due_date = datetime.fromisoformat(data["due_date"])
+            else:
+                task.due_date = None
         if "project_id" in data:
-            task.project_id = data["project_id"]
+            task.project_id = data["project_id"] or None
         if "completed" in data:
             task.completed = data["completed"]
         db.session.commit()
@@ -124,7 +127,7 @@ def index():
 @app.route("/add", methods=['POST'])
 @login_required
 def add():
-    title = 'New Task'
+    title = request.form.get("title", "New Task")
     if len(title) > 0:
         new_task = Task(title=title, user_id=current_user.id, status=TaskStatus.TODO)
         db.session.add(new_task)

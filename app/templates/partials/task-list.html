@@ -1,0 +1,53 @@
+{% for task in tasks %}
+    <div class="task-item-container"
+         style="display: flex;
+                flex-direction: row">
+        <div style="display: flex;
+                    width: 5px;
+                    align-items: center;
+                    margin-right: 1px">
+            <input type="checkbox"
+                   class="task-checkbox"
+                   name="task_checked"
+                   data-task-id="{{ task.id }}"
+                   value="{{ task.completed }}"
+                   {% if task.completed %}checked{% endif %}>
+        </div>
+        <div data-task-id="{{ task.id }}"
+             class="task-item"
+             style="display: flex;
+                    flex-direction: row;
+                    flex-grow: 1;
+                    margin-left: 16px;
+                    justify-content: space-between">
+            <span>
+                <p>{{ task.title }}</p>
+                <div>
+                    <p class="task-meta">
+                        {{ task.due_date.strftime("%Y-%m-%d %H:%M") if task.due_date else '' }} /
+                        {% if task.project %}
+                            {{ task.project.title }}
+                        {% else %}
+                            No Project
+                        {% endif %}
+                    </p>
+                </div>
+            </span>
+        </div>
+        <form action="{{ url_for('delete', task_id=task.id) }}"
+              method="post"
+              class="delete-form"
+              onsubmit="return confirm('Delete this task?')"
+              style="margin-left: auto;
+                     background: none;
+                     border: none;
+                     cursor: pointer;
+                     width: 20px;
+                     height: 20px">
+            <button type="submit" title="Delete">✕</button>
+        </form>
+    </div>
+{% endfor %}
+{% if not tasks %}
+    <p class="empty-state">No task, nice!</p>
+{% endif %}

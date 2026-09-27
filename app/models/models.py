@@ -51,8 +51,8 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "status": str(self.status.value),
-            "due_date": str(self.due_date),
-            "project_id": self.project_id,
+            "due_date": self.due_date.isoformat() if self.due_date else "",
+            "project_id": self.project_id or "",
             "completed": self.completed
         }
 

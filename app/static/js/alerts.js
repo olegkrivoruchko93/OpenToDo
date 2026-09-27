@@ -19,7 +19,20 @@ const elDueDate = document.getElementById("task-due-date");
 const elProject = document.getElementById("task-project");
 const saveBtn = document.getElementById("save-btn");
 const elCheckBox = document.getElementById("task-checkbox");
+const addTaskBtn = document.getElementById("add-task-btn");
 let currentTaskId = null;
+
+// Open overlay for creating a new task
+addTaskBtn.addEventListener("click", () => {
+  currentTaskId = null;
+  elTitle.value = "";
+  elDesc.value = "";
+  elStatus.value = "todo";
+  elDueDate.value = "";
+  elProject.value = "";
+  elCheckBox.checked = false;
+  openOverlay();
+});
 
 // Open overlay when a task item is clicked
 document.querySelectorAll(".task-item").forEach((el) => {
@@ -69,7 +82,29 @@ document.querySelectorAll(".task-checkbox").forEach((el) => {
 
 // Save task changes
 saveBtn.addEventListener("click", async () => {
-  if (!currentTaskId) return;
+  const title = elTitle.value.trim();
+  if (!currentTaskId) {
+    // Creating a new task
+    if (!title) {
+      elTitle.value = "Title is required!";
+      return;
+    }
+    try {
+      const res = await fetch("/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `title=${encodeURIComponent(title)}`,
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      location.reload();
+    } catch (err) {
+      elTitle.value = "Error saving!";
+      elDesc.value = err.message;
+    }
+    return;
+  }
+  // Editing existing task
+  if (!title) return;
   try {
     const res = await fetch(`/tasks/${currentTaskId}`, {
       method: "PATCH",

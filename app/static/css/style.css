@@ -122,6 +122,8 @@ body {
   padding: 32px;
   overflow-y: auto;
   background: #ffffff;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------- Login page ---------- */
@@ -469,4 +471,46 @@ h2 {
   font-family: inherit;
   outline: none;
   box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
+}
+
+.btn-add-task {
+  /* Size & Shape */
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+
+  /* Layout & Content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 21px;
+  line-height: 1;
+
+  /* Styling */
+  background-color: #60a5fa;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25),
+              0 2px 5px rgba(0, 0, 0, 0.15);
+
+  /* Smooth interactions */
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+
+  /* Push to bottom of content */
+  margin-top: auto;
+}
+
+.btn-add-task:hover {
+  background-color: #3b82f6;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3),
+              0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add-task:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
