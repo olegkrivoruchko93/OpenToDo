@@ -107,13 +107,35 @@ body {
   color: #666;
 }
 
-.delete-form {
-  display: inline;
+.text-center {
+  text-align: center;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  width: 5px;
+  align-items: center;
+  margin-right: 1px;
 }
 
 .task-actions {
   display: flex;
   align-items: center;
+}
+
+.delete-form {
+  display: inline;
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
 }
 
 /* ---------- Content ---------- */
@@ -151,6 +173,7 @@ body {
 
 h2 {
   padding: 5px;
+  text-align: left;
 }
 
 /* ---------- Input fields ---------- */
@@ -405,6 +428,13 @@ h2 {
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
 
+#task-checkbox {
+  display: flex;
+  width: 15px;
+  align-items: center;
+  margin-right: 15px;
+}
+
 #task-checkbox:focus {
   border: none !important;
   box-shadow: none !important;
@@ -456,6 +486,11 @@ h2 {
 
 .task-item {
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+  margin-left: 16px;
+  justify-content: space-between;
 }
 
 .project-item {

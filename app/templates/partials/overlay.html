@@ -4,13 +4,10 @@
     <div class="overlay-card" role="dialog" aria-modal="true">
         <button type="button" class="overlay-close" data-close aria-label="Close">×</button>
         <div class="overlay-form">
-            <div style="display: flex; flex-direction: row;">
+            <div class="flex-row">
                 <input type="checkbox"
                        id="task-checkbox"
-                       style="display: flex;
-                              width: 15px;
-                              align-items: center;
-                              margin-right: 15px">
+                       class="task-checkbox">
                 <input type="text" id="task-title" placeholder="Task title" required>
             </div>
             <textarea id="task-desc" placeholder="Description"></textarea>
