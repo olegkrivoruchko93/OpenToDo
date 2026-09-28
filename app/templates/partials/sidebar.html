@@ -24,7 +24,7 @@
     </div>
     <div class="project-item">
         <form action="{{ url_for("projects") }}" method="post">
-            <label for="Add project">My projects</label>
+            <span class="project-heading">My projects</span>
             <button type="submit" class="btn-add-project" aria-label="Add new project">+</button>
         </form>
     </div>
@@ -34,14 +34,11 @@
         </div>
     {% endfor %}
     <div class="sidebar-buttons">
-        <a href="{{ url_for("logout") }}">
-            <img src="{{ url_for('static', filename='icons/archive.svg') }}"
-                 alt="archive"
-                 role="img" />
-        </a>
-        <a href="{{ url_for("logout") }}">
+        <a href="{{ url_for("logout") }}"
+           title="Logout"
+           aria-label="Logout">
             <img src="{{ url_for('static', filename='icons/logout.svg') }}"
-                 alt="logout"
+                 alt=""
                  role="img" />
         </a>
     </div>

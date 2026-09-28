@@ -1,11 +1,10 @@
 {% for task in tasks %}
-    <div class="task-item-container">
+    <div class="task-item-container{% if task.completed %} completed{% endif %}">
         <div class="checkbox-wrapper">
             <input type="checkbox"
                    class="task-checkbox"
                    name="task_checked"
                    data-task-id="{{ task.id }}"
-                   value="{{ task.completed }}"
                    {% if task.completed %}checked{% endif %}>
         </div>
         <div data-task-id="{{ task.id }}"

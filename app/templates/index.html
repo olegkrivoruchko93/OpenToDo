@@ -2,7 +2,7 @@
 {% block content %}
     {% include "partials/sidebar.html" %}
     <main class="content">
-        <h2>{% if current_date_filter == "today" %}Today{% elif current_date_filter == "upcoming" %}Upcoming{% elif current_date_filter == "inbox" %}Inbox{% else %}Inbox{% endif %}</h2>
+        <h2>{{ {"today": "Today", "upcoming": "Upcoming"}.get(current_date_filter, "Inbox") }}</h2>
         {% include "partials/task-list.html" %}
         <button type="button"
                 id="add-task-btn"

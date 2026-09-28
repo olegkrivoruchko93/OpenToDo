@@ -74,8 +74,9 @@ document.querySelectorAll(".task-checkbox").forEach((el) => {
       if (!res.ok) throw new Error("Failed to save");
       el.value = el.checked ? "true" : "false";
     } catch (err) {
-      elTitle.value = "Error saving!";
-      elDesc.value = err.message;
+      // The server kept the old value, so put the checkbox back and log the reason.
+      el.checked = !el.checked;
+      console.error(err);
     }
   });
 });
